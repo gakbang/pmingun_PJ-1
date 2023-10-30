@@ -6,29 +6,45 @@
 //
 
 #include <iostream>
-#include "token.hpp"
-#include "parser.hpp"
-#include<vector>
-#include <tuple>
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    std::tuple<Tokens, std::string> token;
-    std::vector<std::tuple<Tokens, std::string>> tokenList;
-    tokenList.push_back(std::make_tuple(IDENT, "1"));
-    tokenList.push_back(std::make_tuple(ASSIGNMENT_OP, "2"));
-    tokenList.push_back(std::make_tuple(CONST, "3"));
-    tokenList.push_back(std::make_tuple(SEMI_COLON, "4"));
-    tokenList.push_back(std::make_tuple(IDENT, "4"));
-    tokenList.push_back(std::make_tuple(ASSIGNMENT_OP, "2"));
-    tokenList.push_back(std::make_tuple(LEFT_PAREN, "4"));
-    tokenList.push_back(std::make_tuple(CONST, "3"));
-    tokenList.push_back(std::make_tuple(MULT_OP, "3"));
-    tokenList.push_back(std::make_tuple(CONST, "3"));
-    tokenList.push_back(std::make_tuple(RIGHT_PAREN, "4"));
+#include <fstream>
+#include <string>
+#include <vector>
 
-    Parser parser(tokenList);
+#include "parser.hpp"
+#include "token.hpp"
+#include "lexical_analyzer.hpp"
+
+using namespace std;
+
+int main(int argc, char *argv[]) {
+    
+    vector<tuple<Tokens, string>> lexResult;
+    
+    // 파일명은 argv[1]에 있습니다.
+    const char *filename = argv[1];
+    
+    // 입력 파일 스트림 생성
+    ifstream inputFile(filename);
+    
+    if (!inputFile) {
+        cout << "파일을 열 수 없습니다: " << filename << endl;
+        return 0;
+    }
+    
+    // Lexical Analyzer 통해 구문 분석 진행
+    lexResult = analyzeInputFile(inputFile);
+    
+    // DEBUG PRINT
+    for (int index = 0; index < lexResult.size(); index++) {
+        cout << get<0>(lexResult.at(index)) << ' ' << get<1>(lexResult.at(index)) << '\n';
+    }
+    
+    Parser parser(lexResult);
     parser.Parse();
+
+
+    // 파일 닫기 (자동으로 닫히지만 명시적으로 닫아주는 것이 좋습니다)
+    inputFile.close();
 
     return 0;
 }

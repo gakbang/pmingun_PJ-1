@@ -31,7 +31,8 @@
 		3430B1352AEF760D00D18B3E /* lexical_analyzer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = lexical_analyzer.hpp; sourceTree = "<group>"; };
 		3430B1372AEF761A00D18B3E /* parser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = parser.cpp; sourceTree = "<group>"; };
 		3430B1382AEF761A00D18B3E /* parser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = parser.hpp; sourceTree = "<group>"; };
-		3430B13A2AEF77F800D18B3E /* token.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = token.h; sourceTree = "<group>"; };
+		3430B13A2AEF77F800D18B3E /* token.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = token.hpp; sourceTree = "<group>"; };
+		3430B13B2AEF7DD700D18B3E /* input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,7 +70,8 @@
 				3430B1372AEF761A00D18B3E /* parser.cpp */,
 				3430B1382AEF761A00D18B3E /* parser.hpp */,
 				3430B1352AEF760D00D18B3E /* lexical_analyzer.hpp */,
-				3430B13A2AEF77F800D18B3E /* token.h */,
+				3430B13A2AEF77F800D18B3E /* token.hpp */,
+				3430B13B2AEF7DD700D18B3E /* input.txt */,
 			);
 			path = PJ1;
 			sourceTree = "<group>";

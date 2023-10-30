@@ -4,23 +4,18 @@
 //
 //  Created by Park Sungmin on 10/30/23.
 //
-#include<stack>
-#include<vector>
-#include<tuple>
-#include<string>
-#include<iostream>
-#include<sstream>
+#include <stack>
+#include <vector>
+#include <tuple>
+#include <string>
+#include <iostream>
+#include <sstream>
+
 #include "parser.hpp"
 #include "token.hpp"
 
-
-
-
-
 void Parser::Parse() { program(); }
 void Parser::program() { statements(); return ; }
-
-
 
 void Parser::statements() {
 	statement();
