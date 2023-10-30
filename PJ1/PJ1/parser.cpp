@@ -36,7 +36,7 @@ void Parser::statements() {
 void Parser::statement() {
 	isErrorOccurred = false;
 	if (!isEmpty() && isToken(IDENT)) {
-		int identVal = ident();
+		std::string id = ident();
 	}
 	else {
 		//에러 : STATEMENT가 IDENT로 시작하지 않음
@@ -63,6 +63,11 @@ void Parser::statement() {
 	}
 	
 	int value = expression();
+
+	if (isErrorOccurred) {
+		//Error 발생한 Statement, Error 출력 후 넘어가기
+	}
+	
 	// 대입문
 	// symbolTablep[identVal] = value;
 	return;
@@ -160,17 +165,16 @@ double Parser::factor_tail() {
 }
 
 
-int Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
+std::string Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 	if (!isErrorOccurred) {
 		if (!isEmpty() && isToken(IDENT)) {
 			std::string value = getToken();
-			std::cout << "IDENT" << " ";
-			// symbol table 에서 ident 확인 작업
-			_symbolTable.find(value)->second.isNull = false;
+			_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언 완료
+			//std::cout << "IDENT" << " ";
 			nextToken();
+			return value;
 		}
 	}
-	return 0;
 	//symbol table index 리턴할 듯 ?
 }
 
@@ -182,7 +186,7 @@ int Parser::ident_val() { // ident value 읽어오기
 			if (iter->second.isNull) {
 				// Error : 아직 선언되지 않은 변수 참조
 			}
-			int value;
+			return iter->second.data;
 			// value = symbol table[ident]
 			//return value; //변수의 value
 		}

@@ -45,7 +45,7 @@ private:
 	int factor();
 	double factor_tail();
 
-	int ident();
+	std::string ident();
 	int ident_val();
 	int add_op();
 	int mult_op();

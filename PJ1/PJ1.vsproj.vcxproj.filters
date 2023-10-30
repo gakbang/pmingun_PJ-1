@@ -32,7 +32,7 @@
     <ClInclude Include="pj1\parser.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PJ1\token.hpp">
+    <ClInclude Include="pj1\token.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
