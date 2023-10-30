@@ -21,7 +21,7 @@ class OptionalInt {
 public:
 	bool isNull;
 	int data;
-	OptionalInt() :isNull(false), data(0) {}
+	OptionalInt() :isNull(true), data(0) {}
 
 };
 

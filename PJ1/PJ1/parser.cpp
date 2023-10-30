@@ -151,7 +151,7 @@ int Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 			std::string value = getToken();
 			std::cout << "IDENT" << " ";
 			// symbol table 에서 ident 확인 작업
-
+			_symbolTable.find(value)->second.isNull = false;
 			nextToken();
 		}
 	}
@@ -163,13 +163,13 @@ int Parser::ident_val() { // ident value 읽어오기
 	if (!isErrorOccurred) {
 		if (!isEmpty() && isToken(IDENT)) {
 			std::cout << "IDENT" << " ";
-			std::string id = getToken();
-
-			int index = ident();
-			
+			auto iter = _symbolTable.find(getToken());
+			if (iter->second.isNull) {
+				// Error : 아직 선언되지 않은 변수 참조
+			}
 			int value;
 			// value = symbol table[ident]
-			return 0; //변수의 value
+			//return value; //변수의 value
 		}
 	}
 	return 0;
