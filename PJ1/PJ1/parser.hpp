@@ -14,8 +14,10 @@
 #include<tuple>
 #include<string>
 #include<iostream>
+#include<map>
 
 #include "token.hpp"
+#include "lexical_analyzer.hpp"
 
 #endif /* parser_hpp */
 
@@ -24,16 +26,13 @@ private:
 	int _index;
 	std::stack<Tokens> _parsingStack;
 	std::vector<std::tuple<Tokens, std::string>> _tokenList;
-	std::vector<std::tuple<std::string, int>> _symbolTable;
+	std::vector<std::tuple<std::string, OptionalInt>> _symbolTable;
 
 
 	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKEN의 string값 가져오기
-
  	void nextToken() { _index++; return; }
 	bool isEmpty() { return _index >= _tokenList.size(); }
-	bool isToken(Tokens token) { 
-		return token == std::get<0>(_tokenList[_index]); 
-	}
+	bool isToken(Tokens token) { return token == std::get<0>(_tokenList[_index]); }
 
 	void program();
 	void statements();
@@ -58,10 +57,16 @@ private:
 			std::cout << std::get<0>(i) << std::get<1>(i) << std::endl;
 		}
 	}
+
+
+
 public:
 	Parser(std::vector<std::tuple<Tokens, std::string>> tokenList, 
-				 std::vector<std::tuple<std::string, int>> symbolTable) :_index(0), _tokenList(tokenList), _symbolTable(symbolTable) {
+				 std::vector<std::string> symbolTable) :_index(0), _tokenList(tokenList) {
 		_parsingStack.push(PROGRAM);
+		for (auto symbol : symbolTable) {
+			_symbolTable.push_back(std::make_tuple(symbol, OptionalInt()));
+		}
 	}
 	void Parse();
 };

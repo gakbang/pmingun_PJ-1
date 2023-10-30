@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "lexical_analyzer.hpp"	
 #include "parser.hpp"
 #include "token.hpp"
 
@@ -20,7 +21,7 @@ void Parser::program() { statements(); return ; }
 void Parser::statements() {
 	statement();
 	while (!isEmpty()&&isToken(SEMI_COLON)){
-		std::cout << "SEMI_COLON" << " ";
+		//std::cout << "SEMI_COLON" << " ";
 		nextToken();
 		statement();
 		
@@ -39,7 +40,7 @@ void Parser::statement() {
 		//에러 : STATEMENT가 IDENT로 시작하지 않음
 	}
 	if (!isEmpty() && isToken(ASSIGNMENT_OP)) {
-		std::cout << "ASSIGN" << " ";
+		//std::cout << "ASSIGN" << " ";
 		nextToken();
 	}
 	else {
@@ -87,11 +88,11 @@ int Parser::factor() {
 		return const_val();
 	}
 	else if (!isEmpty() && isToken(LEFT_PAREN)) {
-		std::cout << "LEFT" << " ";
+		//std::cout << "LEFT" << " ";
 		nextToken();
 		int value = expression();
 		if (!isEmpty() && isToken(RIGHT_PAREN)) {
-			std::cout << "RIGHT" << " ";
+			//std::cout << "RIGHT" << " ";
 			nextToken();
 			return value;
 		}
@@ -124,8 +125,11 @@ double Parser::factor_tail() {
 
 int Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 	if (!isEmpty() && isToken(IDENT)) {
+		//std::cout << "IDENT" << " ";
+
 		std::string value = getToken();
-		std::cout << "IDENT" << " ";
+		
+		
 		// symbol table 에서 ident 확인 작업
 
 		nextToken();
@@ -136,7 +140,7 @@ int Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 
 int Parser::ident_val() { // ident value 읽어오기
 	if (!isEmpty() && isToken(IDENT)) {
-		std::cout << "IDENT" << " ";
+		//std::cout << "IDENT" << " ";
 		std::string id = getToken();
 
 		int index = ident();
@@ -149,7 +153,7 @@ int Parser::ident_val() { // ident value 읽어오기
 
 int Parser::add_op(){
 	if (!isEmpty() && isToken(ADD_OP)) {
-		std::cout << "ADD_OP"<<" ";
+		//std::cout << "ADD_OP"<<" ";
 		int value;
 		value = getToken() == "-";
 		//  +, - 구분가능한 리턴값
@@ -160,7 +164,7 @@ int Parser::add_op(){
 
 int Parser::mult_op() {
 	if (!isEmpty() && isToken(MULT_OP)) {
-		std::cout << "MULT_OP" << " ";
+		//std::cout << "MULT_OP" << " ";
 		int value;
 		value = getToken() == "/";
 		nextToken();
@@ -171,7 +175,7 @@ int Parser::mult_op() {
 int Parser::const_val() {
 	if (!isEmpty() && isToken(CONST)) {
 		std::stringstream ss(getToken());
-		std::cout << "CONST"<<" ";
+		//std::cout << "CONST"<<" ";
 		int value;
 		ss >> value;
 		nextToken();
