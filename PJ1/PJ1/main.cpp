@@ -9,7 +9,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "token.h"
+
+#include "token.hpp"
 #include "lexical_analyzer.hpp"
 
 using namespace std;

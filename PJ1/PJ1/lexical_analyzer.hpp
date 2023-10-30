@@ -13,7 +13,7 @@
 #include <vector>
 #include <fstream>
 
-#include "token.h"
+#include "token.hpp"
 
 using namespace std;
 
