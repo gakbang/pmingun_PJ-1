@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "lexical_analyzer.hpp"	
 #include "parser.hpp"
 #include "token.hpp"
 
@@ -20,7 +21,7 @@ void Parser::program() { statements(); return ; }
 void Parser::statements() {
 	statement();
 	while (!isEmpty()&&isToken(SEMI_COLON)){
-		std::cout << "SEMI_COLON" << " ";
+		//std::cout << "SEMI_COLON" << " ";
 		nextToken();
 		statement();
 		
@@ -44,7 +45,7 @@ void Parser::statement() {
 	}
 
 	if (!isEmpty() && isToken(ASSIGNMENT_OP)) {
-		std::cout << "ASSIGN" << " ";
+		//std::cout << "ASSIGN" << " ";
 		nextToken();
 	}
 	else {

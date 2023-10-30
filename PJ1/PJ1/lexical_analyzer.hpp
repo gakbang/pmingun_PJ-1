@@ -17,17 +17,27 @@
 
 using namespace std;
 
+class OptionalInt {
+public:
+	bool isNull;
+	int data;
+	OptionalInt() :isNull(false), data(0) {}
+
+};
+
 class LexicalAnalyzer {
   private:
   vector<tuple<Tokens, string>> _lexResult;
-  vector<tuple<string, int>> _symbolTable;
+  vector<string> _symbolTable;
 
   public: 
   Tokens analyzeString (string);
   void analyzeInputFile(ifstream&);
   vector<tuple<Tokens, string>> getAnalyzedResult();
-  vector<tuple<string, int>> getSymbolTable();
+  vector<string> getSymbolTable();
 };
+
+
 
 
 

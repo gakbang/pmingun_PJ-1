@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "lexical_analyzer.hpp"
 #include "token.hpp"
@@ -20,7 +21,7 @@ Tokens LexicalAnalyzer::analyzeString (string str) {
 
         // 새로운 Identifier가 들어오면 symbol table에 등록해준다.
         // Identifier에 대한 init 값은 null 이다.
-        LexicalAnalyzer::_symbolTable.push_back(make_tuple(str, '\0'));
+        LexicalAnalyzer::_symbolTable.push_back(str);
         return IDENT;
     }
 
@@ -114,6 +115,6 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
 vector<tuple<Tokens, string>> LexicalAnalyzer::getAnalyzedResult() {
     return _lexResult;
 }
-vector<tuple<string, int>> LexicalAnalyzer::getSymbolTable() {
+vector<string> LexicalAnalyzer::getSymbolTable() {
     return _symbolTable;
 }

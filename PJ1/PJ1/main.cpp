@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     //     cout << get<0>(lexResult.at(index)) << ' ' << get<1>(lexResult.at(index)) << '\n';
     // }
     
-    Parser parser = Parser(lexicalAnalyzer.getAnalyzedResult(), lexicalAnalyzer.getSymbolTable());
+    Parser parser(lexicalAnalyzer.getAnalyzedResult(), lexicalAnalyzer.getSymbolTable());
     parser.Parse();
 
 
