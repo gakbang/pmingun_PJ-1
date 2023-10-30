@@ -35,9 +35,9 @@ int main(int argc, char *argv[]) {
     lexResult = analyzeInputFile(inputFile);
     
     // DEBUG PRINT
-    for (int index = 0; index < lexResult.size(); index++) {
-        cout << get<0>(lexResult.at(index)) << ' ' << get<1>(lexResult.at(index)) << '\n';
-    }
+    // for (int index = 0; index < lexResult.size(); index++) {
+    //     cout << get<0>(lexResult.at(index)) << ' ' << get<1>(lexResult.at(index)) << '\n';
+    // }
     
     Parser parser(lexResult);
     parser.Parse();
