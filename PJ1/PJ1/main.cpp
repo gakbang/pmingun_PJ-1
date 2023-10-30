@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "parser.hpp"
 #include "token.hpp"
 #include "lexical_analyzer.hpp"
 
@@ -33,17 +34,17 @@ int main(int argc, char *argv[]) {
     // Lexical Analyzer 통해 구문 분석 진행
     lexResult = analyzeInputFile(inputFile);
     
-    
     // DEBUG PRINT
     for (int index = 0; index < lexResult.size(); index++) {
         cout << get<0>(lexResult.at(index)) << ' ' << get<1>(lexResult.at(index)) << '\n';
     }
     
+    Parser parser(lexResult);
+    parser.Parse();
+
+
     // 파일 닫기 (자동으로 닫히지만 명시적으로 닫아주는 것이 좋습니다)
     inputFile.close();
-    
-    Parser parser(tokenList);
-    parser.Parse();
-#include "parser.hpp"
+
     return 0;
 }

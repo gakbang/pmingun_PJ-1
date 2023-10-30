@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "lexical_analyzer.hpp"
-#include "token.h"
+#include "token.hpp"
 
 using namespace std;
 
