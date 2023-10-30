@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		3430B12E2AEF756C00D18B3E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3430B12D2AEF756C00D18B3E /* main.cpp */; };
+		3430B1362AEF760D00D18B3E /* lexical_analyzer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3430B1342AEF760D00D18B3E /* lexical_analyzer.cpp */; };
+		3430B1392AEF761A00D18B3E /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3430B1372AEF761A00D18B3E /* parser.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,10 @@
 /* Begin PBXFileReference section */
 		3430B12A2AEF756C00D18B3E /* PJ1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PJ1; sourceTree = BUILT_PRODUCTS_DIR; };
 		3430B12D2AEF756C00D18B3E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		3430B1342AEF760D00D18B3E /* lexical_analyzer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = lexical_analyzer.cpp; sourceTree = "<group>"; };
+		3430B1352AEF760D00D18B3E /* lexical_analyzer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = lexical_analyzer.hpp; sourceTree = "<group>"; };
+		3430B1372AEF761A00D18B3E /* parser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = parser.cpp; sourceTree = "<group>"; };
+		3430B1382AEF761A00D18B3E /* parser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = parser.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +64,10 @@
 			isa = PBXGroup;
 			children = (
 				3430B12D2AEF756C00D18B3E /* main.cpp */,
+				3430B1342AEF760D00D18B3E /* lexical_analyzer.cpp */,
+				3430B1372AEF761A00D18B3E /* parser.cpp */,
+				3430B1382AEF761A00D18B3E /* parser.hpp */,
+				3430B1352AEF760D00D18B3E /* lexical_analyzer.hpp */,
 			);
 			path = PJ1;
 			sourceTree = "<group>";
@@ -119,6 +129,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3430B1362AEF760D00D18B3E /* lexical_analyzer.cpp in Sources */,
+				3430B1392AEF761A00D18B3E /* parser.cpp in Sources */,
 				3430B12E2AEF756C00D18B3E /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
