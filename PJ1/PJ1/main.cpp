@@ -18,7 +18,9 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
     
-    vector<tuple<Tokens, string>> lexResult;
+    vector<tuple<int, string>> symbolTable;
+
+    LexicalAnalyzer lexicalAnalyzer = LexicalAnalyzer();
     
     // 파일명은 argv[1]에 있습니다.
     const char *filename = argv[1];
@@ -32,14 +34,15 @@ int main(int argc, char *argv[]) {
     }
     
     // Lexical Analyzer 통해 구문 분석 진행
-    lexResult = analyzeInputFile(inputFile);
+    lexicalAnalyzer.analyzeInputFile(inputFile);
+    // lexicalAnalyzer
     
     // DEBUG PRINT
     // for (int index = 0; index < lexResult.size(); index++) {
     //     cout << get<0>(lexResult.at(index)) << ' ' << get<1>(lexResult.at(index)) << '\n';
     // }
     
-    Parser parser(lexResult);
+    Parser parser = Parser(lexicalAnalyzer.getAnalyzedResult(), lexicalAnalyzer.getSymbolTable());
     parser.Parse();
 
 
