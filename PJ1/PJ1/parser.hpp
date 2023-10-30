@@ -26,7 +26,6 @@ private:
 	std::vector<std::tuple<Tokens, std::string>> _tokenList;
 	std::vector<std::tuple<std::string, int>> _symbolTable;
 
-
 	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKEN의 string값 가져오기
 
  	void nextToken() { _index++; return; }
@@ -34,6 +33,8 @@ private:
 	bool isToken(Tokens token) { 
 		return token == std::get<0>(_tokenList[_index]); 
 	}
+
+	bool isErrorOccurred = false;
 
 	void program();
 	void statements();
