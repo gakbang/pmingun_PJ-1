@@ -97,6 +97,9 @@ int Parser::factor() {
 			//오류
 		}
 	}
+	else {
+		//오류
+	}
 	return 0;
 }
 
