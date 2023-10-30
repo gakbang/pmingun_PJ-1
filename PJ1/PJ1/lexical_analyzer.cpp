@@ -69,11 +69,10 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
         // 기호에 대한 처리
         else {
             if (!line.empty()) {
-                if (line != ":") {
-                    lexicalResult.push_back(make_tuple(analyzeString(line), line));
-                    line.clear();
-                }
+                lexicalResult.push_back(make_tuple(analyzeString(line), line));
             }
+
+            line.clear();
             
             switch (c) {
                 case '(':
@@ -98,12 +97,10 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
                     lexicalResult.push_back(make_tuple(SEMI_COLON, ";"));
                     break;
                 case ':':
-                    line += c;
+                    lexicalResult.push_back(make_tuple(COLON, ":"));
                     break;
                 case '=':
-                    line += c;
-                    lexicalResult.push_back(make_tuple(ASSIGNMENT_OP, ":="));
-                    line.clear();
+                    lexicalResult.push_back(make_tuple(EQUAL, "="));
                     break;
             }
         }
