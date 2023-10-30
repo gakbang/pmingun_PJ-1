@@ -66,6 +66,7 @@ int Parser::expression() {
 		int value2 = term_tail();
 		return value1 + value2;
 	}
+	return 0;
 }
 
 int Parser::term() {
@@ -74,6 +75,8 @@ int Parser::term() {
 		double value2 = factor_tail();
 		return (int)(value1 * value2);
 	}
+		return 0;
+
 }
 
 int Parser::term_tail() {
@@ -88,8 +91,11 @@ int Parser::term_tail() {
 			}
 			return value;
 		}
+		else  {
+			return 0; // 공 스트링 (연산 없음)
+		}
 	}
-	else return 0; // 공 스트링 (연산 없음)
+	return 0;
 }
 
 int Parser::factor() {
@@ -138,6 +144,7 @@ double Parser::factor_tail() {
 			}
 			return value;
 		}
+			return 0;
 	}
 	else {
 		return 1; // 공 스트링 (연산 없음)
