@@ -24,6 +24,7 @@ private:
 	int _index;
 	std::stack<Tokens> _parsingStack;
 	std::vector<std::tuple<Tokens, std::string>> _tokenList;
+	std::vector<std::tuple<std::string, int>> _symbolTable;
 
 
 	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKEN의 string값 가져오기
@@ -58,9 +59,9 @@ private:
 		}
 	}
 public:
-	Parser(std::vector<std::tuple<Tokens, std::string>> tokenList) :_index(0), _tokenList(tokenList) {
+	Parser(std::vector<std::tuple<Tokens, std::string>> tokenList, 
+				 std::vector<std::tuple<std::string, int>> symbolTable) :_index(0), _tokenList(tokenList), _symbolTable(symbolTable) {
 		_parsingStack.push(PROGRAM);
-		//debug();
 	}
 	void Parse();
 };

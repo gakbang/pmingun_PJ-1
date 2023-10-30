@@ -15,15 +15,28 @@
 
 using namespace std;
 
-Tokens analyzeString (string str) {
-    if (str[0] >= '0' && str[0] <= '9') {
-        return CONST;
+Tokens LexicalAnalyzer::analyzeString (string str) {
+    if (!(str[0] >= '0' && str[0] <= '9')){
+
+        // 새로운 Identifier가 들어오면 symbol table에 등록해준다.
+        // Identifier에 대한 init 값은 null 이다.
+        LexicalAnalyzer::_symbolTable.push_back(make_tuple(str, '\0'));
+        return IDENT;
     }
-    return IDENT;
+
+    // 모든 문자가 숫자인지 확인    
+    string::iterator iter = str.begin();
+    for (; iter != str.end(); iter++) {
+        if (!('0' <= *iter && *iter <= '9')) {
+            // error
+        }
+    } 
+
+    return CONST;
 }
 
 
-vector<tuple<Tokens, string>> analyzeInputFile(ifstream& inputFile) {
+void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
     // 파일 내용 읽기
     vector<tuple<Tokens, string>> lexicalResult;
     string line;
@@ -93,5 +106,13 @@ vector<tuple<Tokens, string>> analyzeInputFile(ifstream& inputFile) {
             }
         }
     }
-    return lexicalResult;
+    
+    LexicalAnalyzer::_lexResult = lexicalResult;
+}
+
+vector<tuple<Tokens, string>> LexicalAnalyzer::getAnalyzedResult() {
+    return _lexResult;
+}
+vector<tuple<string, int>> LexicalAnalyzer::getSymbolTable() {
+    return _symbolTable;
 }

@@ -17,7 +17,18 @@
 
 using namespace std;
 
-Tokens analyzeString (string);
-vector<tuple<Tokens, string>> analyzeInputFile(ifstream&);
+class LexicalAnalyzer {
+  private:
+  vector<tuple<Tokens, string>> _lexResult;
+  vector<tuple<string, int>> _symbolTable;
+
+  public: 
+  Tokens analyzeString (string);
+  void analyzeInputFile(ifstream&);
+  vector<tuple<Tokens, string>> getAnalyzedResult();
+  vector<tuple<string, int>> getSymbolTable();
+};
+
+
 
 #endif /* lexical_analyzer_hpp */
