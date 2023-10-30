@@ -40,7 +40,7 @@ private:
 	int term();
 	int term_tail();
 	int factor();
-	int factor_tail();
+	double factor_tail();
 
 	int ident();
 	int ident_val();

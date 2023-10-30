@@ -53,22 +53,27 @@ void Parser::statement() {
 }
 
 int Parser::expression() {
-	int value =	term();
-	term_tail();
-	return 0;
+	int value1 = term();
+	int value2 = term_tail();
+	return value1 + value2;
 }
 
 int Parser::term() {
-	factor();
-	factor_tail();
-	return 0;
+	int value1 = factor();
+	double value2 = factor_tail();
+	return (int)(value1 * value2);
 }
 
 int Parser::term_tail() {
 	if (isToken(ADD_OP)) {
 		int opType = add_op();
-		term();
-		term_tail();
+		int value1 = term();
+		double value2 = term_tail();
+		int value = (int)(value1 * value2);
+		if (opType) { // - 연산인 경우
+			value = 0 - value;
+		}
+		return value;
 	}
 	else return 0; // 공 스트링 (연산 없음)
 }
@@ -94,11 +99,16 @@ int Parser::factor() {
 	return 0;
 }
 
-int Parser::factor_tail() {
+double Parser::factor_tail() {
 	if (isToken(MULT_OP)) {
-		mult_op();
-		factor();
-		factor_tail();
+		int opType = mult_op();
+		int value1 = factor();
+		double value2 = factor_tail();
+		double value = value1 * value2;
+		if (opType) { // 나누기 연산인 경우
+			value = 1.0 / value;
+		}
+		return value;
 	}
 	else return 1; // 공 스트링 (연산 없음)
 }
@@ -133,6 +143,7 @@ int Parser::ident_val() { // ident value 읽어오기
 int Parser::add_op(){
 	if (isToken(ADD_OP)) {
 		int value;
+		value = getToken() == "-";
 		//  +, - 구분가능한 리턴값
 		nextToken();
 		return value;
@@ -142,6 +153,7 @@ int Parser::add_op(){
 int Parser::mult_op() {
 	if (isToken(MULT_OP)) {
 		int value;
+		value = getToken() == "/";
 		nextToken();
 		return value;
 	}
