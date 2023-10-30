@@ -1,4 +1,4 @@
-﻿//
+//
 //  parser.cpp
 //  PJ1
 //
@@ -20,8 +20,10 @@ void Parser::program() { statements(); return ; }
 void Parser::statements() {
 	statement();
 	while (!isEmpty()&&isToken(SEMI_COLON)){
+		std::cout << "SEMI_COLON" << " ";
 		nextToken();
 		statement();
+		
 	}
 	if (!isEmpty()) {
 		//에러 : Token이 남아 있음
@@ -30,14 +32,14 @@ void Parser::statements() {
 	return;
 }
 void Parser::statement() {
-	if (isToken(IDENT)) {
+	if (!isEmpty() && isToken(IDENT)) {
 		int identVal = ident();
 	}
 	else {
 		//에러 : STATEMENT가 IDENT로 시작하지 않음
-		std::cout << "DEBUG : ERROR \n";	}
-
-	if (isToken(ASSIGNMENT_OP)) {
+	}
+	if (!isEmpty() && isToken(ASSIGNMENT_OP)) {
+		std::cout << "ASSIGN" << " ";
 		nextToken();
 	}
 	else {
@@ -63,7 +65,7 @@ int Parser::term() {
 }
 
 int Parser::term_tail() {
-	if (isToken(ADD_OP)) {
+	if (!isEmpty() && isToken(ADD_OP)) {
 		int opType = add_op();
 		int value1 = term();
 		double value2 = term_tail();
@@ -77,16 +79,19 @@ int Parser::term_tail() {
 }
 
 int Parser::factor() {
-	if (isToken(IDENT)) {
+	if (!isEmpty() && isToken(IDENT)) {
+		
 		return ident_val();
 	}
-	else if (isToken(CONST)) {
+	else if (!isEmpty() && isToken(CONST)) {
 		return const_val();
 	}
-	else if (isToken(LEFT_PAREN)) {
+	else if (!isEmpty() && isToken(LEFT_PAREN)) {
+		std::cout << "LEFT" << " ";
 		nextToken();
 		int value = expression();
-		if (isToken(RIGHT_PAREN)) {
+		if (!isEmpty() && isToken(RIGHT_PAREN)) {
+			std::cout << "RIGHT" << " ";
 			nextToken();
 			return value;
 		}
@@ -103,7 +108,7 @@ int Parser::factor() {
 }
 
 double Parser::factor_tail() {
-	if (isToken(MULT_OP)) {
+	if (!isEmpty() && isToken(MULT_OP)) {
 		int opType = mult_op();
 		int value1 = factor();
 		double value2 = factor_tail();
@@ -118,8 +123,9 @@ double Parser::factor_tail() {
 
 
 int Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
-	if (isToken(IDENT)) {
+	if (!isEmpty() && isToken(IDENT)) {
 		std::string value = getToken();
+		std::cout << "IDENT" << " ";
 		// symbol table 에서 ident 확인 작업
 
 		nextToken();
@@ -129,7 +135,8 @@ int Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 }
 
 int Parser::ident_val() { // ident value 읽어오기
-	if (isToken(IDENT)) {
+	if (!isEmpty() && isToken(IDENT)) {
+		std::cout << "IDENT" << " ";
 		std::string id = getToken();
 
 		int index = ident();
@@ -141,7 +148,8 @@ int Parser::ident_val() { // ident value 읽어오기
 }
 
 int Parser::add_op(){
-	if (isToken(ADD_OP)) {
+	if (!isEmpty() && isToken(ADD_OP)) {
+		std::cout << "ADD_OP"<<" ";
 		int value;
 		value = getToken() == "-";
 		//  +, - 구분가능한 리턴값
@@ -151,7 +159,8 @@ int Parser::add_op(){
 }
 
 int Parser::mult_op() {
-	if (isToken(MULT_OP)) {
+	if (!isEmpty() && isToken(MULT_OP)) {
+		std::cout << "MULT_OP" << " ";
 		int value;
 		value = getToken() == "/";
 		nextToken();
@@ -160,10 +169,12 @@ int Parser::mult_op() {
 }
 
 int Parser::const_val() {
-	if (isToken(CONST)) {
+	if (!isEmpty() && isToken(CONST)) {
 		std::stringstream ss(getToken());
+		std::cout << "CONST"<<" ";
 		int value;
 		ss >> value;
+		nextToken();
 		return value;
 	}
 }
