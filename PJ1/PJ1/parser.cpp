@@ -28,7 +28,7 @@ void Parser::statements() {
 	}
 	if (!isEmpty()) {
 		//에러 : Token이 남아 있음
-		std::cout << "DEBUG : ERROR \n";
+		std::cout << "\nDEBUG : ERROR - TOKEN IS STILL LEFT\n";
 		
 	}
 	return;
@@ -40,17 +40,25 @@ void Parser::statement() {
 	}
 	else {
 		//에러 : STATEMENT가 IDENT로 시작하지 않음
-		std::cout << "DEBUG : ERROR \n";
-
+		std::cout << "\nDEBUG : ERROR - STATEMENT NOT START WITH IDENT \n";
 	}
 
-	if (!isEmpty() && isToken(ASSIGNMENT_OP)) {
+	if (!isEmpty() && isToken(COLON)) {
 		//std::cout << "ASSIGN" << " ";
 		nextToken();
 	}
 	else {
-		//에러 : STATEMENT에 ASSIGNMENT_OP없음
-		std::cout << "DEBUG : ERROR \n";
+		//에러 : STATEMENT에 ASSIGNMENT_OP의 :가 없음
+		std::cout << "\nDEBUG : ERROR - ASSIGNMENT OP : IS MISSING\n";		
+		isErrorOccurred = true;
+	}
+	
+	if (!isEmpty() && isToken(EQUAL)) {
+		nextToken();
+	}
+	else {
+		//에러 : STATEMENT에 ASSIGNMENT_OP의 =가 없음
+		std::cout << "\nDEBUG : ERROR - ASSIGNMENT OP = IS MISSING\n";		
 		isErrorOccurred = true;
 	}
 	
@@ -118,13 +126,13 @@ int Parser::factor() {
 			}
 			else {
 				//오류
-				std::cout << "DEBUG : ERROR \n";
+				std::cout << "\nDEBUG : ERROR - RIGHT PARRENT IS MISSING\n";		
 				isErrorOccurred = true;
 			}
 		}
 		else {
 		//오류
-			std::cout << "DEBUG : ERROR \n";
+			std::cout << "\nDEBUG : ERROR - FACTOR \n";		
 			isErrorOccurred = true;
 
 		}
