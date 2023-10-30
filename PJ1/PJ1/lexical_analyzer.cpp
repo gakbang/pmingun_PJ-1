@@ -16,8 +16,10 @@
 using namespace std;
 
 Tokens analyzeString (string str) {
-    
-    return PROGRAM;
+    if (str[0] >= '0' && str[0] <= '9') {
+        return CONST;
+    }
+    return IDENT;
 }
 
 

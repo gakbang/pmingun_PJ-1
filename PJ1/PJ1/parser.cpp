@@ -1,4 +1,4 @@
-﻿//
+//
 //  parser.cpp
 //  PJ1
 //
@@ -27,6 +27,7 @@ void Parser::statements() {
 	}
 	if (!isEmpty()) {
 		//에러 : Token이 남아 있음
+		std::cout << "DEBUG : ERROR \n";
 	}
 	return;
 }
@@ -43,6 +44,7 @@ void Parser::statement() {
 	}
 	else {
 		//에러 : STATEMENT에 ASSIGNMENT_OP없음
+		std::cout << "DEBUG : ERROR \n";
 	}
 	int value = expression();
 	// 대입문
@@ -95,10 +97,12 @@ int Parser::factor() {
 		}
 		else {
 			//오류
+			std::cout << "DEBUG : ERROR \n";
 		}
 	}
 	else {
-		//오류
+	//오류
+		std::cout << "DEBUG : ERROR \n";
 	}
 	return 0;
 }
@@ -141,10 +145,7 @@ int Parser::ident_val() { // ident value 읽어오기
 		// value = symbol table[ident]
 		return 0; //변수의 value
 	}
-	
 }
-
-
 
 int Parser::add_op(){
 	if (!isEmpty() && isToken(ADD_OP)) {

@@ -30,7 +30,9 @@ private:
 
  	void nextToken() { _index++; return; }
 	bool isEmpty() { return _index >= _tokenList.size(); }
-	bool isToken(Tokens token) { return token == std::get<0>(_tokenList[_index]); }
+	bool isToken(Tokens token) { 
+		return token == std::get<0>(_tokenList[_index]); 
+	}
 
 	void program();
 	void statements();
