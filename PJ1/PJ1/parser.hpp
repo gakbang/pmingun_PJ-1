@@ -28,7 +28,7 @@ private:
 
 	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKEN의 string값 가져오기
 
-	void nextToken() { _index++; return; }
+ 	void nextToken() { _index++; return; }
 	bool isEmpty() { return _index >= _tokenList.size(); }
 	bool isToken(Tokens token) { return token == std::get<0>(_tokenList[_index]); }
 
