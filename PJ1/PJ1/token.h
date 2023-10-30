@@ -8,7 +8,7 @@
 #ifndef token_h
 #define token_h
 
-typedef enum : NSUInteger {
+typedef enum {
     PROGRAM,
     STATEMENTS,
     STATEMENT,
