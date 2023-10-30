@@ -6,10 +6,40 @@
 //
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
 #include "token.h"
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+#include "lexical_analyzer.hpp"
+
+using namespace std;
+
+int main(int argc, char *argv[]) {
+    
+    vector<tuple<Tokens, string>> lexResult;
+    
+    // 파일명은 argv[1]에 있습니다.
+    const char *filename = argv[1];
+    
+    // 입력 파일 스트림 생성
+    ifstream inputFile(filename);
+    
+    if (!inputFile) {
+        cout << "파일을 열 수 없습니다: " << filename << endl;
+        return 0;
+    }
+    
+    // Lexical Analyzer 통해 구문 분석 진행
+    lexResult = analyzeInputFile(inputFile);
+    
+    
+    // DEBUG PRINT
+    for (int index = 0; index < lexResult.size(); index++) {
+        cout << get<0>(lexResult.at(index)) << ' ' << get<1>(lexResult.at(index)) << '\n';
+    }
+    
+    // 파일 닫기 (자동으로 닫히지만 명시적으로 닫아주는 것이 좋습니다)
+    inputFile.close();
     
     return 0;
 }

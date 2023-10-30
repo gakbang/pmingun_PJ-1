@@ -9,5 +9,15 @@
 #define lexical_analyzer_hpp
 
 #include <stdio.h>
+#include <string>
+#include <vector>
+#include <fstream>
+
+#include "token.h"
+
+using namespace std;
+
+Tokens analyzeString (string);
+vector<tuple<Tokens, string>> analyzeInputFile(ifstream&);
 
 #endif /* lexical_analyzer_hpp */
