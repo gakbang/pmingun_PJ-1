@@ -50,6 +50,7 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
             if (!line.empty()) {
                 lexicalResult.push_back(make_tuple(analyzeString(line), line));
                 line.clear();
+                lexicalResult.push_back(make_tuple(END_OF_FILE, ""));
             }
             break;
         }
