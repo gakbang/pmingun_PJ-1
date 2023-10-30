@@ -1,4 +1,4 @@
-//
+ï»¿//
 //  parser.hpp
 //  PJ1
 //
@@ -26,7 +26,7 @@ private:
 	std::vector<std::tuple<Tokens, std::string>> _tokenList;
 
 
-	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKENÀÇ string°ª °¡Á®¿À±â
+	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKENì˜ stringê°’ ê°€ì ¸ì˜¤ê¸°
 
 	void nextToken() { _index++; return; }
 	bool isEmpty() { return _index >= _tokenList.size(); }

@@ -1,4 +1,4 @@
-//
+ï»¿//
 //  parser.cpp
 //  PJ1
 //
@@ -29,7 +29,7 @@ void Parser::statements() {
 		statement();
 	}
 	if (!isEmpty()) {
-		//¿¡·¯ : TokenÀÌ ³²¾Æ ÀÖÀ½
+		//ì—ëŸ¬ : Tokenì´ ë‚¨ì•„ ìˆìŒ
 	}
 	return;
 }
@@ -38,16 +38,16 @@ void Parser::statement() {
 		int identVal = ident();
 	}
 	else {
-		//¿¡·¯ : STATEMENT°¡ IDENT·Î ½ÃÀÛÇÏÁö ¾ÊÀ½
+		//ì—ëŸ¬ : STATEMENTê°€ IDENTë¡œ ì‹œì‘í•˜ì§€ ì•ŠìŒ
 	}
 	if (isToken(ASSIGNMENT_OP)) {
 		nextToken();
 	}
 	else {
-		//¿¡·¯ : STATEMENT¿¡ ASSIGNMENT_OP¾øÀ½
+		//ì—ëŸ¬ : STATEMENTì— ASSIGNMENT_OPì—†ìŒ
 	}
 	int value = expression();
-	// ´ëÀÔ¹®
+	// ëŒ€ì…ë¬¸
 	// symbolTablep[identVal] = value;
 	return;
 }
@@ -70,12 +70,12 @@ int Parser::term_tail() {
 		int value1 = term();
 		double value2 = term_tail();
 		int value = (int)(value1 * value2);
-		if (opType) { // - ¿¬»êÀÎ °æ¿ì
+		if (opType) { // - ì—°ì‚°ì¸ ê²½ìš°
 			value = 0 - value;
 		}
 		return value;
 	}
-	else return 0; // °ø ½ºÆ®¸µ (¿¬»ê ¾øÀ½)
+	else return 0; // ê³µ ìŠ¤íŠ¸ë§ (ì—°ì‚° ì—†ìŒ)
 }
 
 int Parser::factor() {
@@ -93,7 +93,7 @@ int Parser::factor() {
 			return value;
 		}
 		else {
-			//¿À·ù
+			//ì˜¤ë¥˜
 		}
 	}
 	return 0;
@@ -105,27 +105,27 @@ double Parser::factor_tail() {
 		int value1 = factor();
 		double value2 = factor_tail();
 		double value = value1 * value2;
-		if (opType) { // ³ª´©±â ¿¬»êÀÎ °æ¿ì
+		if (opType) { // ë‚˜ëˆ„ê¸° ì—°ì‚°ì¸ ê²½ìš°
 			value = 1.0 / value;
 		}
 		return value;
 	}
-	else return 1; // °ø ½ºÆ®¸µ (¿¬»ê ¾øÀ½)
+	else return 1; // ê³µ ìŠ¤íŠ¸ë§ (ì—°ì‚° ì—†ìŒ)
 }
 
 
-int Parser::ident(){ // STATEMENTÀÇ °¡Àå ¾Õ¿¡ ³ª¿À´Â identifier
+int Parser::ident(){ // STATEMENTì˜ ê°€ì¥ ì•ì— ë‚˜ì˜¤ëŠ” identifier
 	if (isToken(IDENT)) {
 		std::string value = getToken();
-		// symbol table ¿¡¼­ ident È®ÀÎ ÀÛ¾÷
+		// symbol table ì—ì„œ ident í™•ì¸ ì‘ì—…
 
 		nextToken();
 	}
 	return 0;
-	//symbol table index ¸®ÅÏÇÒ µí ?
+	//symbol table index ë¦¬í„´í•  ë“¯ ?
 }
 
-int Parser::ident_val() { // ident value ÀĞ¾î¿À±â
+int Parser::ident_val() { // ident value ì½ì–´ì˜¤ê¸°
 	if (isToken(IDENT)) {
 		std::string id = getToken();
 
@@ -133,7 +133,7 @@ int Parser::ident_val() { // ident value ÀĞ¾î¿À±â
 		
 		int value;
 		// value = symbol table[ident]
-		return 0; //º¯¼öÀÇ value
+		return 0; //ë³€ìˆ˜ì˜ value
 	}
 	
 }
@@ -144,7 +144,7 @@ int Parser::add_op(){
 	if (isToken(ADD_OP)) {
 		int value;
 		value = getToken() == "-";
-		//  +, - ±¸ºĞ°¡´ÉÇÑ ¸®ÅÏ°ª
+		//  +, - êµ¬ë¶„ê°€ëŠ¥í•œ ë¦¬í„´ê°’
 		nextToken();
 		return value;
 	}
