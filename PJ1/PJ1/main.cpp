@@ -23,7 +23,9 @@ int main(int argc, char *argv[]) {
     LexicalAnalyzer lexicalAnalyzer = LexicalAnalyzer();
     
     // 파일명은 argv[1]에 있습니다.
-    const char *filename = argv[1];
+    //const char *filename = argv[1];
+
+    const char* filename = "input.txt";
     
     // 입력 파일 스트림 생성
     ifstream inputFile(filename);
@@ -38,9 +40,12 @@ int main(int argc, char *argv[]) {
     // lexicalAnalyzer
     
     // DEBUG PRINT
-    // for (int index = 0; index < lexResult.size(); index++) {
-    //     cout << get<0>(lexResult.at(index)) << ' ' << get<1>(lexResult.at(index)) << '\n';
-    // }
+     
+    /*
+     for (auto i : lexicalAnalyzer.getAnalyzedResult()) {
+         cout << get<0>(i) << " " << get<1>(i) <<" " << (get<0>(i) == END_OF_FILE) <<std::endl;
+     }
+     */
     
     Parser parser(lexicalAnalyzer.getAnalyzedResult(), lexicalAnalyzer.getSymbolTable());
     parser.Parse();

@@ -25,45 +25,81 @@
 template<typename T>
 class OptionalData {
 public:
-	bool isNull;
-	bool isUnknown;
+	bool isNull; // 선언 여부 확인하는 변수
+	bool isUnknown; // Unknown Data 확인하는 변수
 	T data;
-	OptionalData() :isNull(true), isUnknown(false), data(0) {} // NullValue 
-	OptionalData(bool isUnknown) :isNull(false), isUnknown(isUnknown), data(0) {} // Unknown data
-	OptionalData(T data) :isNull(false), isUnknown(false), data(data) {} //공 스트링 용도
-
-
+	OptionalData() :isNull(true), isUnknown(false), data(0) {}
+	OptionalData(bool isUnknown) :isNull(false), isUnknown(isUnknown), data(0) {}
+	OptionalData(T data) :isNull(false), isUnknown(false), data(data) {}
+	std::string GetData() {
+		if (isUnknown) return "Unknown";
+		else return to_string(data);
+	}
+	
 };
 
+template <class T1, class T2>
+T1 ConvertType(T2 t) {
+	T1 value = T1();
+	value.isUnknown = t.isUnknown;
+	value.data = t.data;
+	return value;
+}
 
-class OptionalInt : OptionalData<int> {
+class OptionalInt : public OptionalData<int> {
 public:
-	OptionalInt():OptionalData(){} 
-	OptionalInt(bool isUnknown) :OptionalData(isUnknown) {}
-	OptionalInt(int data) :OptionalData(data) {}
-
+	OptionalInt() : OptionalData() {} //Null Data
+	OptionalInt(bool isUnknown) : OptionalData(isUnknown) {} //OptionalInt(true) - UnknownData
+	OptionalInt(int data) : OptionalData(data) {}
 	OptionalInt& operator=(const OptionalInt& o) {
 		isUnknown = o.isUnknown;
 		data = o.data;
 		return *this;
 	}
-	OptionalInt& operator=(const int& data) {
-		this->data = data;
+	OptionalInt& operator=(const int& o) {
+		data = o;
 		return *this;
 	}
-	
+	OptionalInt& operator+ (const OptionalInt& o) {
+		OptionalInt value = OptionalInt(0);
+		value.isUnknown = isUnknown|o.isUnknown;
+		value.data = data + o.data;
+		return value;
+	}
+
+	OptionalInt& operator* (const OptionalInt& o) {
+		OptionalInt value = OptionalInt(0);
+		value.isUnknown = isUnknown | o.isUnknown;
+		value.data = data * o.data;
+		return value;
+	}
 };
 
-class OptionalDouble : OptionalData<double> {
+class OptionalDouble : public OptionalData<double> {
 public:
 	OptionalDouble() :OptionalData() {}
-	OptionalDouble(bool isUnknown) :OptionalData(isUnknown) {}
-	OptionalDouble(double data) :OptionalData(data) {}
+	OptionalDouble(bool isUnknown) : OptionalData(isUnknown) {}
+	OptionalDouble(double data) : OptionalData(data) {}
 
+	
 	OptionalDouble& operator=(const OptionalDouble& o) {
 		isUnknown = o.isUnknown;
 		data = o.data;
 		return *this;
+	}
+
+	OptionalDouble& operator+ (const OptionalDouble& o) {
+		OptionalDouble value = OptionalDouble(0.0);
+		value.isUnknown = isUnknown | o.isUnknown;
+		value.data = data + o.data;
+		return value;
+	}
+
+	OptionalDouble& operator* (const OptionalDouble& o) {
+		OptionalDouble value = OptionalDouble(0.0);
+		value.isUnknown = isUnknown | o.isUnknown;
+		value.data = data * o.data;
+		return value;
 	}
 };
 
@@ -72,12 +108,14 @@ private:
 	int _index;
 	std::stack<Tokens> _parsingStack;
 	std::vector<std::tuple<Tokens, std::string>> _tokenList;
-	std::map<std::string, OptionalData<int>> _symbolTable;
+	std::map<std::string, OptionalInt> _symbolTable;
 
 	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKEN의 string값 가져오기
 	void nextToken() { _index++; return; }
 	bool isEmpty() { return std::get<0>(_tokenList[_index]) == END_OF_FILE; }
-	bool isToken(Tokens token) { return token == std::get<0>(_tokenList[_index]); }
+	bool isToken(Tokens token) { 
+		return token == std::get<0>(_tokenList[_index]); 
+	}
 
 	bool isErrorOccurred = false;
 
@@ -85,23 +123,29 @@ private:
 	void statements();
 	void statement();
 
-	OptionalData<int> expression();
-	OptionalData<int> term();
-	OptionalData<int> term_tail();
-	OptionalData<int> factor();
-	OptionalData<double> factor_tail();
+	OptionalInt expression();
+	OptionalDouble term();
+	OptionalDouble term_tail();
+	OptionalInt factor();
+	OptionalDouble factor_tail();
 
 	std::string ident();
-	OptionalData<int> ident_val();
-	OptionalData<int> add_op();
-	OptionalData<int> mult_op();
-	OptionalData<int> const_val();
+	OptionalInt ident_val();
+	int add_op();
+	int mult_op();
+	OptionalInt const_val();
 
 
 
 	void debug() {
 		for (auto i : _tokenList) {
 			std::cout << std::get<0>(i) << std::get<1>(i) << std::endl;
+		}
+	}
+
+	void debug2() {
+		for (auto i : _symbolTable) {
+			std::cout << i.first << " : " << i.second.GetData() << std::endl;
 		}
 	}
 
@@ -116,7 +160,7 @@ public:
 		std::vector<std::string> symbolTable) :_index(0), _tokenList(tokenList) {
 		_parsingStack.push(PROGRAM);
 		for (auto symbol : symbolTable) {
-			_symbolTable.insert(pair<std::string, OptionalData<int>>(symbol, OptionalData<int>()));
+			_symbolTable.insert(pair<std::string, OptionalInt>(symbol, OptionalInt()));
 			
 		}
 	}

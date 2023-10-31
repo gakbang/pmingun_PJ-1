@@ -15,7 +15,7 @@ void Parser::program() { statements(); return ; }
 void Parser::statements() {
 	statement();
 	while (isToken(SEMI_COLON)){
-		//std::cout << "SEMI_COLON" << " ";
+		std::cout << "SEMI_COLON" << " ";
 		nextToken();
 		statement();
 		
@@ -25,6 +25,8 @@ void Parser::statements() {
 		std::cout << "\nDEBUG : ERROR - TOKEN IS STILL LEFT\n";
 		
 	}
+
+	debug2();
 	return;
 }
 void Parser::statement() {
@@ -40,7 +42,7 @@ void Parser::statement() {
 	}
 
 	if (isToken(COLON)) {
-		//std::cout << "ASSIGN" << " ";
+		std::cout << "ASSIGN" << " ";
 		nextToken();
 	}
 	else {
@@ -62,6 +64,7 @@ void Parser::statement() {
 
 	if (isErrorOccurred) {
 		//Error 발생한 Statement, Error 출력 후 넘어가기
+		_symbolTable.find(id)->second = OptionalInt(false);
 	}
 	
 	_symbolTable.find(id)->second = value;
@@ -73,40 +76,40 @@ void Parser::statement() {
 
 OptionalInt Parser::expression() {
 	if (!isErrorOccurred) {
-		OptionalInt value1 = term();
-		OptionalInt value2 = term_tail();
-		return value1 + value2;
+		OptionalDouble value1 = term();
+		OptionalDouble value2 = term_tail();
+		return ConvertType<OptionalInt, OptionalDouble>(value1 + value2);
 	}
-	return OptionalInt();
+	return OptionalInt(true);
 }
 
-OptionalInt Parser::term() {
+OptionalDouble Parser::term() {
 	if (!isErrorOccurred) {
-		int value1 = factor();
-		double value2 = factor_tail();
-		return (int)(value1 * value2);
+		OptionalDouble value1 = ConvertType<OptionalDouble,OptionalInt>(factor());
+		OptionalDouble value2 = factor_tail();
+		return (value1 * value2);
 	}
-		return OptionalInt();
+		return OptionalDouble(true);
 
 }
 
-OptionalInt Parser::term_tail() {
+OptionalDouble Parser::term_tail() {
 	if (!isErrorOccurred) {
 		if (isToken(ADD_OP)) {
 			int opType = add_op();
-			int value1 = term();
-			double value2 = term_tail();
-			int value = (int)(value1 * value2);
+			OptionalDouble value1 = term();
+			OptionalDouble value2 = term_tail();
+			OptionalDouble value = value1 + value2;
 			if (opType) { // - 연산인 경우
-				value = 0 - value;
+				value.data = 0 - value.data;
 			}
 			return value;
 		}
 		else{
-			return OptionalInt(0); // 공 스트링 (연산 없음)
+			return OptionalDouble(0.0); // 공 스트링 (연산 없음)
 		}
 	}
-	return OptionalInt();
+	return OptionalDouble(true);
 }
 
 OptionalInt Parser::factor() {
@@ -119,7 +122,7 @@ OptionalInt Parser::factor() {
 			return const_val();
 		}
 		else if (!isEmpty() && isToken(LEFT_PAREN)) {
-			//std::cout << "LEFT" << " ";
+			std::cout << "LEFT" << " ";
 			nextToken();
 			OptionalInt value = expression();
 			if (!isEmpty() && isToken(RIGHT_PAREN)) {
@@ -147,18 +150,18 @@ OptionalDouble Parser::factor_tail() {
 	if (!isErrorOccurred) {
 		if (isToken(MULT_OP)) {
 			int opType = mult_op();
-			int value1 = factor();
+			OptionalInt value1 = factor();
 			OptionalDouble value2 = factor_tail();
-			OptionalDouble value = value1 * value2;
+			OptionalDouble value = value1.data * value2.data;
 			if (opType) { // 나누기 연산인 경우
-				value = 1.0 / value;
+				value = 1.0 / value.data;
 			}
 			return value;
 		}
 		return OptionalDouble(1.0); // 공 스트링 (연산 없음)
 	}
 	else {
-		return OptionalDouble(false); // UnknownData
+		return OptionalDouble(true);
 	}
 }
 
@@ -168,8 +171,8 @@ std::string Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 		if (!isEmpty() && isToken(IDENT)) {
 			std::string value = getToken();
 			_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언
-			_symbolTable.find(getToken())->second.data = 0; //Identifier 선언
-			//std::cout << "IDENT" << " ";
+			//_symbolTable.find(getToken())->second.data = 0; //Identifier 선언
+			std::cout << "IDENT" << " ";
 			nextToken();
 			return value;
 		}
@@ -177,29 +180,31 @@ std::string Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 	//symbol table index 리턴할 듯 ?
 }
 
-OptionalData<int> Parser::ident_val() { // ident value 읽어오기
+OptionalInt Parser::ident_val() { // ident value 읽어오기
 	OptionalInt value;
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(IDENT)) {
+		if (isToken(IDENT)) {
 			std::cout << "IDENT" << " ";
 			auto iter = _symbolTable.find(getToken());
 			if (iter->second.isNull) {
 				// Error : 아직 선언되지 않은 변수 참조
 
-				_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언
-				_symbolTable.find(getToken())->second.isUnknown = true; //Identifier 선언
+				iter->second.isNull = false; //Identifier 선언
+				iter->second.isUnknown = true; //Identifier 선언
+				
 				
 
 			}
-			return iter->second.data;
+			nextToken();
+			return iter->second;
 			// value = symbol table[ident]
 			//return value; //변수의 value
 		}
 	}
-	return 0;
+	return OptionalInt(true);
 }
 
-OptionalInt Parser::add_op(){
+int Parser::add_op(){
 	OptionalInt value;
 	if (!isErrorOccurred) {
 		if (!isEmpty() && isToken(ADD_OP)) {
@@ -209,10 +214,10 @@ OptionalInt Parser::add_op(){
 			return value;
 		}
 	}
-	return 0;
+	return 0;//Null
 }
 
-OptionalInt Parser::mult_op() {
+int Parser::mult_op() {
 	OptionalInt value;
 	if (!isErrorOccurred) {
 		if (!isEmpty() && isToken(MULT_OP)) {
@@ -222,21 +227,19 @@ OptionalInt Parser::mult_op() {
 			return value;
 		}
 	}
-	return 0;
+	return 0;//Null
 }
 
 OptionalInt Parser::const_val() {
-	OptionalInt value;
 	if (!isErrorOccurred) {
 		if (isToken(CONST)) {
 			std::stringstream ss(getToken());
 			std::cout << "CONST"<<" ";
 			int data;
 			ss >> data;
-			value = data;
 			nextToken();
-			
+			return OptionalInt(data);
 		}
 	}
-	return value;
+	return OptionalInt(true);
 }
