@@ -17,13 +17,7 @@
 
 using namespace std;
 
-class OptionalInt {
-public:
-	bool isNull;
-	int data;
-	OptionalInt() :isNull(true), data(0) {}
 
-};
 
 class LexicalAnalyzer {
   private:
