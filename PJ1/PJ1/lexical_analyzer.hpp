@@ -21,24 +21,19 @@ class OptionalInt {
 public:
 	bool isNull;
 	int data;
-	OptionalInt() :isNull(false), data(0) {}
-
+	OptionalInt() :isNull(true), data(0) {}
 };
 
 class LexicalAnalyzer {
-  private:
+private:
   vector<tuple<Tokens, string>> _lexResult;
   vector<string> _symbolTable;
-
-  public: 
   Tokens analyzeString (string);
+
+public: 
   void analyzeInputFile(ifstream&);
   vector<tuple<Tokens, string>> getAnalyzedResult();
   vector<string> getSymbolTable();
 };
-
-
-
-
 
 #endif /* lexical_analyzer_hpp */
