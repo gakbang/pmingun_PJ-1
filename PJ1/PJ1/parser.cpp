@@ -13,10 +13,14 @@ void Parser::Parse() { program(); }
 void Parser::program() { statements(); cout << "\n\n"; debug2(); return ; }
 
 void Parser::statements() {
+
+
 	statement();
 	while (isToken(SEMI_COLON)){
 		std::cout << getToken() << "\n";
 		printCountPerStatement();
+		std::cout << (isErrorOccurred == true ? "대충 에러났네요~" : "(OK)") << '\n';
+
 		idCountPerStatement = 0;
 		constCountPerStatement = 0;
 		opCountPerStatement = 0;
@@ -24,7 +28,6 @@ void Parser::statements() {
 
 		nextToken();
 		statement();
-		
 	}
 	if (!isEmpty()) {
 		//에러 : Token이 남아 있음
@@ -32,7 +35,9 @@ void Parser::statements() {
 		
 	}
 	cout << '\n';
-			printCountPerStatement();
+		printCountPerStatement();
+		std::cout << (isErrorOccurred == true ? "대충 에러났네요~" : "(OK)") << '\n';
+		
 		idCountPerStatement = 0;
 		constCountPerStatement = 0;
 		opCountPerStatement = 0;
@@ -146,7 +151,7 @@ OptionalInt Parser::factor() {
 			}
 			else {
 				//오류
-				std::cout << "\nDEBUG : ERROR - RIGHT PARRENT IS MISSING\n";		
+				std::cout << "\nDEBUG : ERROR - RIGHT PARRENT IS MISSING\n";
 				isErrorOccurred = true;
 			}
 		}
@@ -270,5 +275,5 @@ void Parser::printToken() {
 }
 
 void Parser::printCountPerStatement() {
-	std::cout << "ID: " << idCountPerStatement << "; CONST:" << constCountPerStatement << "; OP: " << opCountPerStatement << "\n\n";
+	std::cout << "ID: " << idCountPerStatement << "; CONST:" << constCountPerStatement << "; OP: " << opCountPerStatement << "\n";
 }
