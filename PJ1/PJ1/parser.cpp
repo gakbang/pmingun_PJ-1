@@ -10,12 +10,18 @@
 #include "token.hpp"
 
 void Parser::Parse() { program(); }
-void Parser::program() { statements(); return ; }
+void Parser::program() { statements(); cout << "\n\n"; debug2(); return ; }
 
 void Parser::statements() {
 	statement();
 	while (isToken(SEMI_COLON)){
-		std::cout << "SEMI_COLON" << " ";
+		std::cout << getToken() << "\n";
+		printCountPerStatement();
+		idCountPerStatement = 0;
+		constCountPerStatement = 0;
+		opCountPerStatement = 0;
+
+
 		nextToken();
 		statement();
 		
@@ -25,14 +31,19 @@ void Parser::statements() {
 		std::cout << "\nDEBUG : ERROR - TOKEN IS STILL LEFT\n";
 		
 	}
-
-	debug2();
+	cout << '\n';
+			printCountPerStatement();
+		idCountPerStatement = 0;
+		constCountPerStatement = 0;
+		opCountPerStatement = 0;
+	
 	return;
 }
 void Parser::statement() {
 	isErrorOccurred = false;
 	std::string id;
-	if ( isToken(IDENT)) {
+
+	if (isToken(IDENT)) {
 		 id = ident();
 	}
 	else {
@@ -42,16 +53,17 @@ void Parser::statement() {
 	}
 
 	if (isToken(COLON)) {
-		std::cout << "ASSIGN" << " ";
+		printToken();
 		nextToken();
 	}
 	else {
 		//에러 : STATEMENT에 ASSIGNMENT_OP의 :가 없음
-		std::cout << "\nDEBUG : ERROR - ASSIGNMENT OP : IS MISSING\n";		
+		std::cout << "\nDEBUG : ERROR - COLON : IS MISSING\n";		
 		isErrorOccurred = true;
 	}
 	
 	if (!isEmpty() && isToken(EQUAL)) {
+		printToken();
 		nextToken();
 	}
 	else {
@@ -71,6 +83,8 @@ void Parser::statement() {
 	
 	// 대입문
 	// symbolTablep[identVal] = value;
+
+
 	return;
 }
 
@@ -122,11 +136,11 @@ OptionalInt Parser::factor() {
 			return const_val();
 		}
 		else if (!isEmpty() && isToken(LEFT_PAREN)) {
-			std::cout << "LEFT" << " ";
+			printToken();
 			nextToken();
 			OptionalInt value = expression();
 			if (!isEmpty() && isToken(RIGHT_PAREN)) {
-				std::cout << "RIGHT" << " ";
+				printToken();
 				nextToken();
 				return value;
 			}
@@ -172,7 +186,8 @@ std::string Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 			std::string value = getToken();
 			_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언
 			//_symbolTable.find(getToken())->second.data = 0; //Identifier 선언
-			std::cout << "IDENT" << " ";
+			printToken();
+			idCountPerStatement += 1;
 			nextToken();
 			return value;
 		}
@@ -184,7 +199,9 @@ OptionalInt Parser::ident_val() { // ident value 읽어오기
 	OptionalInt value;
 	if (!isErrorOccurred) {
 		if (isToken(IDENT)) {
-			std::cout << "IDENT" << " ";
+			printToken();
+						idCountPerStatement += 1;
+
 			auto iter = _symbolTable.find(getToken());
 			if (iter->second.isNull) {
 				// Error : 아직 선언되지 않은 변수 참조
@@ -208,7 +225,9 @@ int Parser::add_op(){
 	OptionalInt value;
 	if (!isErrorOccurred) {
 		if (!isEmpty() && isToken(ADD_OP)) {
-			std::cout << "ADD_OP"<<" ";
+			printToken();
+			opCountPerStatement += 1;
+
 			int value = getToken() == "-"; //  +, - 구분가능한 리턴값
 			nextToken();
 			return value;
@@ -221,7 +240,8 @@ int Parser::mult_op() {
 	OptionalInt value;
 	if (!isErrorOccurred) {
 		if (isToken(MULT_OP)) {
-			std::cout << "MULT_OP" << " ";
+			printToken();
+			opCountPerStatement += 1;
 			int value = getToken() == "/";
 			nextToken();
 			return value;
@@ -234,7 +254,8 @@ OptionalInt Parser::const_val() {
 	if (!isErrorOccurred) {
 		if (isToken(CONST)) {
 			std::stringstream ss(getToken());
-			std::cout << "CONST"<<" ";
+			printToken();
+			constCountPerStatement += 1;
 			int data;
 			ss >> data;
 			nextToken();
@@ -242,4 +263,12 @@ OptionalInt Parser::const_val() {
 		}
 	}
 	return OptionalInt::GetUnknown();
+}
+
+void Parser::printToken() {
+	std::cout << getToken();
+}
+
+void Parser::printCountPerStatement() {
+	std::cout << "ID: " << idCountPerStatement << "; CONST:" << constCountPerStatement << "; OP: " << opCountPerStatement << "\n\n";
 }

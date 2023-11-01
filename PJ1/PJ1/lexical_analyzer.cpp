@@ -17,6 +17,7 @@
 using namespace std;
 
 Tokens LexicalAnalyzer::analyzeString (string str) {
+    // 숫자로 시작하지 않는 경우
     if (!(str[0] >= '0' && str[0] <= '9')){
 
         // 새로운 Identifier가 들어오면 symbol table에 등록해준다.
@@ -25,11 +26,12 @@ Tokens LexicalAnalyzer::analyzeString (string str) {
         return IDENT;
     }
 
-    // 모든 문자가 숫자인지 확인    
+    // 숫자로 시작하는 경우, 모든 문자가 숫자인지 확인
     string::iterator iter = str.begin();
     for (; iter != str.end(); iter++) {
         if (!('0' <= *iter && *iter <= '9')) {
-            // error
+            // 문자가 포함되어 있다면, UNKNOWN으로 처리한다.
+            return UNKNOWN;
         }
     } 
 
@@ -62,10 +64,12 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
                 line.clear();
             }
         }
-        // alphabet, number에 대한 처리
-        else if ((48 <= c && c <= 57) || (65 <= c && c <= 90) || (97 <= c && c <= 122)) {
+
+        // alphabet, number, underscore에 대한 처리
+        else if (('0' <= c && c <= '9') || ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z') || c == '_') {
             line += c;
         } 
+
         // 기호에 대한 처리
         else {
             if (!line.empty()) {
@@ -101,6 +105,10 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
                     break;
                 case '=':
                     lexicalResult.push_back(make_tuple(EQUAL, "="));
+                    break;
+                default:
+                    cout << "\nDEBUG - UNKNOWN SYMBOL IS ENTERED\n" ;
+                    lexicalResult.push_back(make_tuple(UNKNOWN, string(1, c)));
                     break;
             }
         }

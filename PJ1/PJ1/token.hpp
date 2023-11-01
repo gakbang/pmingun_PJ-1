@@ -27,6 +27,7 @@ typedef enum {
     RIGHT_PAREN,
     CONST,
     END_OF_FILE,
+    UNKNOWN,
 } Tokens;
 
 #endif /* token_h */

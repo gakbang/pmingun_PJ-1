@@ -38,8 +38,6 @@ public:
 		if (isUnknown) return "Unknown";
 		else return to_string(data);
 	}
-	
-	
 };
 
 template <class T1, class T2>
@@ -142,6 +140,10 @@ private:
 		return token == std::get<0>(_tokenList[_index]); 
 	}
 
+	int idCountPerStatement = 0;
+	int constCountPerStatement = 0;
+	int opCountPerStatement = 0;
+
 	bool isErrorOccurred = false;
 
 	void program();
@@ -159,6 +161,9 @@ private:
 	int add_op();
 	int mult_op();
 	OptionalInt const_val();
+
+	void printToken();
+	void printCountPerStatement();
 
 
 
