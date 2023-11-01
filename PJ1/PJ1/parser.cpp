@@ -76,45 +76,45 @@ void Parser::statement() {
 
 OptionalInt Parser::expression() {
 	if (!isErrorOccurred) {
-		OptionalDouble value1 = term();
-		OptionalDouble value2 = term_tail();
-		return ConvertType<OptionalInt, OptionalDouble>(value1 + value2);
+		OptionalInt value1 = term();
+		OptionalInt value2 = term_tail();
+		return (value1 + value2);
 	}
 	return OptionalInt(true);
 }
 
-OptionalDouble Parser::term() {
+OptionalInt Parser::term() {
 	if (!isErrorOccurred) {
 		OptionalDouble value1 = ConvertType<OptionalDouble,OptionalInt>(factor());
 		OptionalDouble value2 = factor_tail();
-		return (value1 * value2);
+		return ConvertType<OptionalInt,OptionalDouble>(value1 * value2);
 	}
-		return OptionalDouble(true);
+		return OptionalInt(true);
 
 }
 
-OptionalDouble Parser::term_tail() {
+OptionalInt Parser::term_tail() {
 	if (!isErrorOccurred) {
 		if (isToken(ADD_OP)) {
 			int opType = add_op();
-			OptionalDouble value1 = term();
-			OptionalDouble value2 = term_tail();
-			OptionalDouble value = value1 + value2;
+			OptionalInt value1 = term();
+			OptionalInt value2 = term_tail();
+			OptionalInt value = value1 + value2;
 			if (opType) { // - 연산인 경우
 				value.data = 0 - value.data;
 			}
 			return value;
 		}
 		else{
-			return OptionalDouble(0.0); // 공 스트링 (연산 없음)
+			return OptionalInt(0); // 공 스트링 (연산 없음)
 		}
 	}
-	return OptionalDouble(true);
+	return OptionalInt(true);
 }
 
 OptionalInt Parser::factor() {
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(IDENT)) {
+		if (isToken(IDENT)) {
 			
 			return ident_val();
 		}
@@ -168,7 +168,7 @@ OptionalDouble Parser::factor_tail() {
 
 std::string Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(IDENT)) {
+		if (isToken(IDENT)) {
 			std::string value = getToken();
 			_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언
 			//_symbolTable.find(getToken())->second.data = 0; //Identifier 선언
@@ -220,7 +220,7 @@ int Parser::add_op(){
 int Parser::mult_op() {
 	OptionalInt value;
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(MULT_OP)) {
+		if (isToken(MULT_OP)) {
 			std::cout << "MULT_OP" << " ";
 			int value = getToken() == "/";
 			nextToken();
