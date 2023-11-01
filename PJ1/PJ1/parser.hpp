@@ -24,18 +24,21 @@
 
 template<typename T>
 class OptionalData {
+protected:
+	OptionalData() :isNull(true), isUnknown(false), data(0) {}
+	OptionalData(bool isUnknown) :isNull(false), isUnknown(isUnknown), data(0) {}
+	OptionalData(T data) :isNull(false), isUnknown(false), data(data) {}
 public:
 	using data_type = T;
 	bool isNull; // 선언 여부 확인하는 변수
 	bool isUnknown; // Unknown Data 확인하는 변수
 	T data;
-	OptionalData() :isNull(true), isUnknown(false), data(0) {}
-	OptionalData(bool isUnknown) :isNull(false), isUnknown(isUnknown), data(0) {}
-	OptionalData(T data) :isNull(false), isUnknown(false), data(data) {}
+	
 	std::string GetData() {
 		if (isUnknown) return "Unknown";
 		else return to_string(data);
 	}
+	
 	
 };
 
@@ -51,9 +54,12 @@ T1 ConvertType(T2 t) {
 
 
 class OptionalDouble : public OptionalData<double> {
-public:
-	OptionalDouble() :OptionalData() {}
+private:
 	OptionalDouble(bool isUnknown) : OptionalData(isUnknown) {}
+
+public:
+	static OptionalDouble GetUnknown(){ return OptionalDouble(true); }
+	OptionalDouble() :OptionalData() {}
 	OptionalDouble(double data) : OptionalData(data) {}
 
 
@@ -79,10 +85,16 @@ public:
 };
 
 class OptionalInt : public OptionalData<int> {
-public:
-	OptionalInt() : OptionalData() {} //Null Data
+private:
 	OptionalInt(bool isUnknown) : OptionalData(isUnknown) {} //OptionalInt(true) - UnknownData
+
+public:
+	static OptionalInt GetUnknown() { return OptionalInt(true); }
+
+	OptionalInt() : OptionalData() {} //Null Data
 	OptionalInt(int data) : OptionalData(data) {}
+	
+
 	OptionalInt& operator=(const OptionalInt& o) {
 		isUnknown = o.isUnknown;
 		data = o.data;

@@ -64,7 +64,7 @@ void Parser::statement() {
 
 	if (isErrorOccurred) {
 		//Error 발생한 Statement, Error 출력 후 넘어가기
-		_symbolTable.find(id)->second = OptionalInt(false);
+		_symbolTable.find(id)->second = OptionalInt::GetUnknown();
 	}
 	
 	_symbolTable.find(id)->second = value;
@@ -80,7 +80,7 @@ OptionalInt Parser::expression() {
 		OptionalInt value2 = term_tail();
 		return (value1 + value2);
 	}
-	return OptionalInt(true);
+	return OptionalInt::GetUnknown();
 }
 
 OptionalInt Parser::term() {
@@ -89,7 +89,7 @@ OptionalInt Parser::term() {
 		OptionalDouble value2 = factor_tail();
 		return ConvertType<OptionalInt,OptionalDouble>(value1 * value2);
 	}
-		return OptionalInt(true);
+		return OptionalInt::GetUnknown();
 
 }
 
@@ -109,7 +109,7 @@ OptionalInt Parser::term_tail() {
 			return OptionalInt(0); // 공 스트링 (연산 없음)
 		}
 	}
-	return OptionalInt(true);
+	return OptionalInt::GetUnknown();
 }
 
 OptionalInt Parser::factor() {
@@ -161,7 +161,7 @@ OptionalDouble Parser::factor_tail() {
 		return OptionalDouble(1.0); // 공 스트링 (연산 없음)
 	}
 	else {
-		return OptionalDouble(true);
+		return OptionalDouble::GetUnknown();
 	}
 }
 
@@ -201,7 +201,7 @@ OptionalInt Parser::ident_val() { // ident value 읽어오기
 			//return value; //변수의 value
 		}
 	}
-	return OptionalInt(true);
+	return OptionalInt::GetUnknown();
 }
 
 int Parser::add_op(){
@@ -241,5 +241,5 @@ OptionalInt Parser::const_val() {
 			return OptionalInt(data);
 		}
 	}
-	return OptionalInt(true);
+	return OptionalInt::GetUnknown();
 }
