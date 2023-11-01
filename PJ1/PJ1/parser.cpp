@@ -151,15 +151,21 @@ OptionalInt Parser::factor() {
 			}
 			else {
 				//오류
-				std::cout << "\nDEBUG : ERROR - RIGHT PARRENT IS MISSING\n";
+				// std::cout << "\nDEBUG : ERROR - RIGHT PARRENT IS MISSING\n";
+				// RIGHT PARENT WARNING
+				cout << ")";
 				isErrorOccurred = true;
 			}
 		}
 		else {
 		//오류
-			std::cout << "\nDEBUG : ERROR - FACTOR \n";		
-			isErrorOccurred = true;
-
+			// std::cout << "\nDEBUG : ERROR - FACTOR \n";		
+							// MULTIPLE OPERATION WARNING
+			if (isToken(MULT_OP) || isToken(ADD_OP)) {
+				nextToken();
+				factor();
+			}
+			// isErrorOccurred = true;
 		}
 	}
 	return 0;
