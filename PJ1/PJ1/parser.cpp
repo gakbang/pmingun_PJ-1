@@ -134,17 +134,16 @@ OptionalInt Parser::term_tail() {
 OptionalInt Parser::factor() {
 	if (!isErrorOccurred) {
 		if (isToken(IDENT)) {
-			
 			return ident_val();
 		}
-		else if (!isEmpty() && isToken(CONST)) {
+		else if (isToken(CONST)) {
 			return const_val();
 		}
-		else if (!isEmpty() && isToken(LEFT_PAREN)) {
+		else if (isToken(LEFT_PAREN)) {
 			printToken();
 			nextToken();
 			OptionalInt value = expression();
-			if (!isEmpty() && isToken(RIGHT_PAREN)) {
+			if (isToken(RIGHT_PAREN)) {
 				printToken();
 				nextToken();
 				return value;
@@ -172,19 +171,21 @@ OptionalInt Parser::factor() {
 }
 
 OptionalDouble Parser::factor_tail() {
-	if (!isErrorOccurred) {
-		if (isToken(MULT_OP)) {
-			int opType = mult_op();
-			OptionalInt value1 = factor();
-			OptionalDouble value2 = factor_tail();
-			OptionalDouble value = value1.data * value2.data;
-			if (opType) { // 나누기 연산인 경우
-				value = 1.0 / value.data;
-			}
-			return value;
+	if (isToken(MULT_OP)) {
+		int opType = mult_op();
+		OptionalInt value1 = factor();
+		OptionalDouble value2 = factor_tail();
+		OptionalDouble value = value1.data * value2.data;
+		if (opType) { // 나누기 연산인 경우
+			value = 1.0 / value.data;
 		}
-		return OptionalDouble(1.0); // 공 스트링 (연산 없음)
+		if (!isErrorOccurred) {
+			return OptionalDouble(1.0); // 공 스트링 (연산 없음)
+		}
+		return value;
 	}
+	
+	
 	else {
 		return OptionalDouble::GetUnknown();
 	}
@@ -208,72 +209,73 @@ std::string Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 
 OptionalInt Parser::ident_val() { // ident value 읽어오기
 	OptionalInt value;
-	if (!isErrorOccurred) {
-		if (isToken(IDENT)) {
-			printToken();
-						idCountPerStatement += 1;
+	if (!isToken(IDENT)) { throw std::exception(); } //코드 오류 - 코드 확인하기
+	 {
+		printToken();
+		idCountPerStatement += 1;
 
-			auto iter = _symbolTable.find(getToken());
-			if (iter->second.isNull) {
-				// Error : 아직 선언되지 않은 변수 참조
+		auto iter = _symbolTable.find(getToken());
+		if (iter->second.isNull) {
+			// Error : 아직 선언되지 않은 변수 참조
 
-				iter->second.isNull = false; //Identifier 선언
-				iter->second.isUnknown = true; //Identifier 선언
-				
-				
+			iter->second.isNull = false; //Identifier 선언
+			iter->second.isUnknown = true; //Identifier 선언
 
-			}
-			nextToken();
-			return iter->second;
-			// value = symbol table[ident]
-			//return value; //변수의 value
+
+
 		}
+		nextToken();
+		return iter->second;
+		// value = symbol table[ident]
+		//return value; //변수의 value
 	}
-	return OptionalInt::GetUnknown();
+	
+	if (isErrorOccurred) {
+		return OptionalInt::GetUnknown();
+	}
+	
 }
 
-int Parser::add_op(){
-	OptionalInt value;
-	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(ADD_OP)) {
-			printToken();
-			opCountPerStatement += 1;
+int Parser::add_op() {
+	if (!isToken(ADD_OP)) { throw std::exception(); }//코드 오류 - 코드 확인하기
 
-			int value = getToken() == "-"; //  +, - 구분가능한 리턴값
-			nextToken();
-			return value;
-		}
+	printToken();
+	opCountPerStatement += 1;
+	int value = getToken() == "-"; //  +, - 구분가능한 리턴값
+	nextToken();
+	if (isErrorOccurred) {
+		return 0;//Null // 오류 발생 시 - Statement의 데이터 Unknown처리
 	}
-	return 0;//Null
+	return value;
 }
 
 int Parser::mult_op() {
-	OptionalInt value;
-	if (!isErrorOccurred) {
-		if (isToken(MULT_OP)) {
-			printToken();
-			opCountPerStatement += 1;
-			int value = getToken() == "/";
-			nextToken();
-			return value;
-		}
-	}
-	return 0;//Null
+	if (!isToken(MULT_OP)) { throw std::exception(); } //코드 오류 - 코드 확인하기
+
+	printToken();
+	opCountPerStatement += 1;
+	int value = (getToken() == "/");
+	nextToken();
+
+	if (isErrorOccurred) return 0; //Null // 오류 발생 시 - Statement의 데이터 Unknown처리
+
+	return value;
 }
 
-OptionalInt Parser::const_val() {
-	if (!isErrorOccurred) {
-		if (isToken(CONST)) {
-			std::stringstream ss(getToken());
-			printToken();
-			constCountPerStatement += 1;
-			int data;
-			ss >> data;
-			nextToken();
-			return OptionalInt(data);
-		}
+OptionalInt Parser::const_val(){
+	if (!isToken(CONST)) { throw std::exception(); } // 코드 오류 - 코드 확인 하기
+
+	int data;
+	std::stringstream ss(getToken());
+	printToken();
+	constCountPerStatement += 1;
+	ss >> data;
+	nextToken();
+
+	if (isErrorOccurred) { // 오류 발생 시 - Statement의 데이터 Unknown처리
+		return OptionalInt::GetUnknown();
 	}
-	return OptionalInt::GetUnknown();
+	return OptionalInt(data);
 }
 
 void Parser::printToken() {
