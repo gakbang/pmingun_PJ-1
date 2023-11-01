@@ -283,3 +283,9 @@ void Parser::printToken() {
 void Parser::printCountPerStatement() {
 	std::cout << "ID: " << idCountPerStatement << "; CONST:" << constCountPerStatement << "; OP: " << opCountPerStatement << "\n";
 }
+
+void Parser::printWarningAndErrorList() {
+	if (warningList.size() > 0) {
+		
+	}
+}

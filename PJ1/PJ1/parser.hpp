@@ -140,6 +140,10 @@ private:
 		return token == std::get<0>(_tokenList[_index]); 
 	}
 
+	// Error Handling
+	vector<string> warningList = {};
+	vector<string> errorList = {};
+
 	int idCountPerStatement = 0;
 	int constCountPerStatement = 0;
 	int opCountPerStatement = 0;
@@ -162,8 +166,13 @@ private:
 	int mult_op();
 	OptionalInt const_val();
 
+	// Log Function
 	void printToken();
 	void printCountPerStatement();
+	void printWarningAndErrorList();
+
+	// Error Handling Function
+	void resetVariablesForNewStatement();
 
 
 
