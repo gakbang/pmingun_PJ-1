@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
-    <ProjectGuid>{A30A4045-8886-4AAC-8374-86A8B64C145D}</ProjectGuid>
+    <ProjectGuid>{7F800E2E-450A-410D-A462-664DC7F880B7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -101,9 +101,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
-    <ClCompile>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="pj1\lexical_analyzer.cpp" />
@@ -113,7 +110,7 @@
   <ItemGroup>
     <ClInclude Include="pj1\lexical_analyzer.hpp" />
     <ClInclude Include="pj1\parser.hpp" />
-    <ClInclude Include="PJ1\token.hpp" />
+    <ClInclude Include="pj1\token.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

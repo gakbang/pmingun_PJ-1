@@ -1,9 +1,3 @@
-//
-//  parser.cpp
-//  PJ1
-//
-//  Created by Park Sungmin on 10/30/23.
-//
 #include <stack>
 #include <vector>
 #include <tuple>
@@ -20,8 +14,8 @@ void Parser::program() { statements(); return ; }
 
 void Parser::statements() {
 	statement();
-	while (!isEmpty()&&isToken(SEMI_COLON)){
-		//std::cout << "SEMI_COLON" << " ";
+	while (isToken(SEMI_COLON)){
+		std::cout << "SEMI_COLON" << " ";
 		nextToken();
 		statement();
 		
@@ -31,20 +25,24 @@ void Parser::statements() {
 		std::cout << "\nDEBUG : ERROR - TOKEN IS STILL LEFT\n";
 		
 	}
+
+	debug2();
 	return;
 }
 void Parser::statement() {
 	isErrorOccurred = false;
-	if (!isEmpty() && isToken(IDENT)) {
-		int identVal = ident();
+	std::string id;
+	if ( isToken(IDENT)) {
+		 id = ident();
 	}
 	else {
+		//에러 처리 함수
 		//에러 : STATEMENT가 IDENT로 시작하지 않음
 		std::cout << "\nDEBUG : ERROR - STATEMENT NOT START WITH IDENT \n";
 	}
 
-	if (!isEmpty() && isToken(COLON)) {
-		//std::cout << "ASSIGN" << " ";
+	if (isToken(COLON)) {
+		std::cout << "ASSIGN" << " ";
 		nextToken();
 	}
 	else {
@@ -62,53 +60,61 @@ void Parser::statement() {
 		isErrorOccurred = true;
 	}
 	
-	int value = expression();
+	OptionalInt value = expression();
+
+	if (isErrorOccurred) {
+		//Error 발생한 Statement, Error 출력 후 넘어가기
+		_symbolTable.find(id)->second = OptionalInt::GetUnknown();
+	}
+	
+	_symbolTable.find(id)->second = value;
+	
 	// 대입문
 	// symbolTablep[identVal] = value;
 	return;
 }
 
-int Parser::expression() {
+OptionalInt Parser::expression() {
 	if (!isErrorOccurred) {
-		int value1 = term();
-		int value2 = term_tail();
-		return value1 + value2;
+		OptionalInt value1 = term();
+		OptionalInt value2 = term_tail();
+		return (value1 + value2);
 	}
-	return 0;
+	return OptionalInt::GetUnknown();
 }
 
-int Parser::term() {
+OptionalInt Parser::term() {
 	if (!isErrorOccurred) {
-		int value1 = factor();
-		double value2 = factor_tail();
-		return (int)(value1 * value2);
+		OptionalDouble value1 = ConvertType<OptionalDouble,OptionalInt>(factor());
+		OptionalDouble value2 = factor_tail();
+		return ConvertType<OptionalInt,OptionalDouble>(value1 * value2);
 	}
-		return 0;
+		return OptionalInt::GetUnknown();
 
 }
 
-int Parser::term_tail() {
+OptionalInt Parser::term_tail() {
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(ADD_OP)) {
+		if (isToken(ADD_OP)) {
 			int opType = add_op();
-			int value1 = term();
-			double value2 = term_tail();
-			int value = (int)(value1 * value2);
+			OptionalInt value1 = term();
+			OptionalInt value2 = term_tail();
+			OptionalInt value = value1 + value2;
 			if (opType) { // - 연산인 경우
-				value = 0 - value;
+				value.data = 0 - value.data;
 			}
 			return value;
 		}
-		else  {
-			return 0; // 공 스트링 (연산 없음)
+		else{
+			return OptionalInt(0); // 공 스트링 (연산 없음)
 		}
 	}
-	return 0;
+	return OptionalInt::GetUnknown();
 }
 
-int Parser::factor() {
+OptionalInt Parser::factor() {
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(IDENT)) {
+		if (isToken(IDENT)) {
 			
 			return ident_val();
 		}
@@ -118,7 +124,7 @@ int Parser::factor() {
 		else if (!isEmpty() && isToken(LEFT_PAREN)) {
 			std::cout << "LEFT" << " ";
 			nextToken();
-			int value = expression();
+			OptionalInt value = expression();
 			if (!isEmpty() && isToken(RIGHT_PAREN)) {
 				std::cout << "RIGHT" << " ";
 				nextToken();
@@ -140,93 +146,100 @@ int Parser::factor() {
 	return 0;
 }
 
-double Parser::factor_tail() {
+OptionalDouble Parser::factor_tail() {
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(MULT_OP)) {
+		if (isToken(MULT_OP)) {
 			int opType = mult_op();
-			int value1 = factor();
-			double value2 = factor_tail();
-			double value = value1 * value2;
+			OptionalInt value1 = factor();
+			OptionalDouble value2 = factor_tail();
+			OptionalDouble value = value1.data * value2.data;
 			if (opType) { // 나누기 연산인 경우
-				value = 1.0 / value;
+				value = 1.0 / value.data;
 			}
 			return value;
 		}
-			return 0;
+		return OptionalDouble(1.0); // 공 스트링 (연산 없음)
 	}
 	else {
-		return 1; // 공 스트링 (연산 없음)
+		return OptionalDouble::GetUnknown();
 	}
 }
 
 
-int Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
+std::string Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(IDENT)) {
+		if (isToken(IDENT)) {
 			std::string value = getToken();
+			_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언
+			//_symbolTable.find(getToken())->second.data = 0; //Identifier 선언
 			std::cout << "IDENT" << " ";
-			// symbol table 에서 ident 확인 작업
-
 			nextToken();
+			return value;
 		}
 	}
-	return 0;
 	//symbol table index 리턴할 듯 ?
 }
 
-int Parser::ident_val() { // ident value 읽어오기
+OptionalInt Parser::ident_val() { // ident value 읽어오기
+	OptionalInt value;
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(IDENT)) {
+		if (isToken(IDENT)) {
 			std::cout << "IDENT" << " ";
-			std::string id = getToken();
+			auto iter = _symbolTable.find(getToken());
+			if (iter->second.isNull) {
+				// Error : 아직 선언되지 않은 변수 참조
 
-			int index = ident();
-			
-			int value;
+				iter->second.isNull = false; //Identifier 선언
+				iter->second.isUnknown = true; //Identifier 선언
+				
+				
+
+			}
+			nextToken();
+			return iter->second;
 			// value = symbol table[ident]
-			return 0; //변수의 value
+			//return value; //변수의 value
 		}
 	}
-	return 0;
+	return OptionalInt::GetUnknown();
 }
 
 int Parser::add_op(){
+	OptionalInt value;
 	if (!isErrorOccurred) {
 		if (!isEmpty() && isToken(ADD_OP)) {
 			std::cout << "ADD_OP"<<" ";
-			int value;
-			value = getToken() == "-";
-			//  +, - 구분가능한 리턴값
+			int value = getToken() == "-"; //  +, - 구분가능한 리턴값
 			nextToken();
 			return value;
 		}
 	}
-	return 0;
+	return 0;//Null
 }
 
 int Parser::mult_op() {
+	OptionalInt value;
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(MULT_OP)) {
+		if (isToken(MULT_OP)) {
 			std::cout << "MULT_OP" << " ";
-			int value;
-			value = getToken() == "/";
+			int value = getToken() == "/";
 			nextToken();
 			return value;
 		}
 	}
-	return 0;
+	return 0;//Null
 }
 
-int Parser::const_val() {
+OptionalInt Parser::const_val() {
 	if (!isErrorOccurred) {
-		if (!isEmpty() && isToken(CONST)) {
+		if (isToken(CONST)) {
 			std::stringstream ss(getToken());
 			std::cout << "CONST"<<" ";
-			int value;
-			ss >> value;
+			int data;
+			ss >> data;
 			nextToken();
-			return value;
+			return OptionalInt(data);
 		}
 	}
-	return 0;
+	return OptionalInt::GetUnknown();
 }

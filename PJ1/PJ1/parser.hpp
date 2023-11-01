@@ -21,17 +21,126 @@
 
 #endif /* parser_hpp */
 
+
+template<typename T>
+class OptionalData {
+protected:
+	OptionalData() :isNull(true), isUnknown(false), data(0) {}
+	OptionalData(bool isUnknown) :isNull(false), isUnknown(isUnknown), data(0) {}
+	OptionalData(T data) :isNull(false), isUnknown(false), data(data) {}
+public:
+	using data_type = T;
+	bool isNull; // 선언 여부 확인하는 변수
+	bool isUnknown; // Unknown Data 확인하는 변수
+	T data;
+	
+	std::string GetData() {
+		if (isUnknown) return "Unknown";
+		else return to_string(data);
+	}
+	
+	
+};
+
+template <class T1, class T2>
+T1 ConvertType(T2 t) {
+	static_assert(std::is_base_of<OptionalData<typename T1::data_type>, T1>::value, "OptionalData");
+	static_assert(std::is_base_of<OptionalData<typename T2::data_type>, T2>::value, "OptionalData");
+	T1 value = T1();
+	value.isUnknown = t.isUnknown;
+	value.data = t.data;
+	return value;
+}
+
+
+class OptionalDouble : public OptionalData<double> {
+private:
+	OptionalDouble(bool isUnknown) : OptionalData(isUnknown) {}
+
+public:
+	static OptionalDouble GetUnknown(){ return OptionalDouble(true); }
+	OptionalDouble() :OptionalData() {}
+	OptionalDouble(double data) : OptionalData(data) {}
+
+
+	OptionalDouble& operator=(const OptionalDouble& o) {
+		isUnknown = o.isUnknown;
+		data = o.data;
+		return *this;
+	}
+
+	OptionalDouble& operator+ (const OptionalDouble& o) {
+		OptionalDouble value = OptionalDouble(0.0);
+		value.isUnknown = isUnknown | o.isUnknown;
+		value.data = data + o.data;
+		return value;
+	}
+
+	OptionalDouble& operator* (const OptionalDouble& o) {
+		OptionalDouble value = OptionalDouble(0.0);
+		value.isUnknown = isUnknown | o.isUnknown;
+		value.data = data * o.data;
+		return value;
+	}
+};
+
+class OptionalInt : public OptionalData<int> {
+private:
+	OptionalInt(bool isUnknown) : OptionalData(isUnknown) {} //OptionalInt(true) - UnknownData
+
+public:
+	static OptionalInt GetUnknown() { return OptionalInt(true); }
+
+	OptionalInt() : OptionalData() {} //Null Data
+	OptionalInt(int data) : OptionalData(data) {}
+	
+
+	OptionalInt& operator=(const OptionalInt& o) {
+		isUnknown = o.isUnknown;
+		data = o.data;
+		return *this;
+	}
+
+	OptionalInt& operator=(const OptionalDouble& o) {
+		isUnknown = o.isUnknown;
+		data = o.data;
+		return *this;
+	}
+
+	OptionalInt& operator=(const int& o) {
+		data = o;
+		return *this;
+	}
+
+	OptionalInt& operator+ (const OptionalInt& o) {
+		OptionalInt value = OptionalInt(0);
+		value.isUnknown = isUnknown|o.isUnknown;
+		value.data = data + o.data;
+		return value;
+	}
+
+	OptionalInt& operator* (const OptionalInt& o) {
+		OptionalInt value = OptionalInt(0);
+		value.isUnknown = isUnknown | o.isUnknown;
+		value.data = data * o.data;
+		return value;
+	}
+};
+
+
 class Parser {
 private:
 	int _index;
 	std::stack<Tokens> _parsingStack;
 	std::vector<std::tuple<Tokens, std::string>> _tokenList;
-	std::vector<std::tuple<std::string, OptionalInt>> _symbolTable;
+	std::map<std::string, OptionalInt> _symbolTable;
 
 	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKEN의 string값 가져오기
- 	void nextToken() { _index++; return; }
-	bool isEmpty() { return _index >= _tokenList.size(); }
-	bool isToken(Tokens token) { return token == std::get<0>(_tokenList[_index]); }
+	void nextToken() { _index++; return; }
+	bool isEmpty() { return std::get<0>(_tokenList[_index]) == END_OF_FILE; }
+	bool isToken(Tokens token) { 
+		return token == std::get<0>(_tokenList[_index]); 
+	}
 
 	bool isErrorOccurred = false;
 
@@ -39,17 +148,17 @@ private:
 	void statements();
 	void statement();
 
-	int expression();
-	int term();
-	int term_tail();
-	int factor();
-	double factor_tail();
+	OptionalInt expression();
+	OptionalInt term();
+	OptionalInt term_tail();
+	OptionalInt factor();
+	OptionalDouble factor_tail();
 
-	int ident();
-	int ident_val();
+	std::string ident();
+	OptionalInt ident_val();
 	int add_op();
 	int mult_op();
-	int const_val();
+	OptionalInt const_val();
 
 
 
@@ -59,14 +168,25 @@ private:
 		}
 	}
 
+	void debug2() {
+		for (auto i : _symbolTable) {
+			std::cout << i.first << " : " << i.second.GetData() << std::endl;
+		}
+	}
+
+	void checkError(Tokens token) { // 현재 있는 함수 정보 parameter로 전달 - WARNING 처리할 때 좋을 것 같음
+
+	}
+
 
 
 public:
-	Parser(std::vector<std::tuple<Tokens, std::string>> tokenList, 
-				 std::vector<std::string> symbolTable) :_index(0), _tokenList(tokenList) {
+	Parser(std::vector<std::tuple<Tokens, std::string>> tokenList,
+		std::vector<std::string> symbolTable) :_index(0), _tokenList(tokenList) {
 		_parsingStack.push(PROGRAM);
 		for (auto symbol : symbolTable) {
-			_symbolTable.push_back(std::make_tuple(symbol, OptionalInt()));
+			_symbolTable.insert(pair<std::string, OptionalInt>(symbol, OptionalInt()));
+			
 		}
 	}
 	void Parse();
