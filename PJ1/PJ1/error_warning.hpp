@@ -7,7 +7,8 @@ typedef enum {
     UNKNOWN_ERROR,
     UNKNOWN_ID,
     BEGIN_IDENT_MISSING,
-    TOKEN_LEFT,    
+    TOKEN_LEFT,   
+    ZERO_DIVISER,
 } Errors;
 
 typedef enum {
