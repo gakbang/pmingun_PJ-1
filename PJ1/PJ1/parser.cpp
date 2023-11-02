@@ -19,7 +19,7 @@ void Parser::statements() {
 		std::cout << getToken() << endl;
 
 		printCountPerStatement();
-		printWarningAndErrorList();
+		//printWarningAndErrorList();
 		resetVariablesForNewStatement();
 
 		nextToken();
@@ -33,7 +33,7 @@ void Parser::statements() {
 	cout << endl;
 
 	printCountPerStatement();
-	printWarningAndErrorList();
+//	printWarningAndErrorList();
 	resetVariablesForNewStatement();
 	
 	return;
@@ -107,61 +107,71 @@ OptionalInt Parser::term() {
 }
 
 OptionalInt Parser::term_tail() {
-	if (!isErrorOccurred) {
-		if (isToken(ADD_OP)) {
-			int opType = add_op();
-			OptionalInt value1 = term();
-			OptionalInt value2 = term_tail();
-			OptionalInt value = value1 + value2;
-			if (opType) { // - 연산인 경우
-				value.data = 0 - value.data;
-			}
-			return value;
+	if (isToken(ADD_OP)) {
+		int opType = add_op();
+		OptionalInt value1 = term();
+		OptionalInt value2 = term_tail();
+		OptionalInt value = value1 + value2;
+		if (opType) { // - 연산인 경우
+			value.data = 0 - value.data;
 		}
-		else{
-			return OptionalInt(0); // 공 스트링 (연산 없음)
+		if (isErrorOccurred) {
+			return OptionalInt::GetUnknown();
 		}
+		return value;
 	}
-	return OptionalInt::GetUnknown();
+	else {
+		if (isErrorOccurred) {
+			return OptionalInt::GetUnknown();
+		}
+		return OptionalInt(0); // 공 스트링 (연산 없음)
+	}
+	
+	
 }
 
 OptionalInt Parser::factor() {
-	if (!isErrorOccurred) {
-		if (isToken(IDENT)) {
-			return ident_val();
+	if (isToken(IDENT)) {
+		if (isErrorOccurred) {
+			return OptionalInt::GetUnknown();
 		}
-		else if (isToken(CONST)) {
-			return const_val();
+		return ident_val();
+	}
+	else if (isToken(CONST)) {
+		if (isErrorOccurred) {
+			return OptionalInt::GetUnknown();
 		}
-		else if (isToken(LEFT_PAREN)) {
+		return const_val();
+	}
+	else if (isToken(LEFT_PAREN)) {
+		printToken();
+		nextToken();
+		OptionalInt value = expression();
+		if (isToken(RIGHT_PAREN)) {
 			printToken();
 			nextToken();
-			OptionalInt value = expression();
-			if (isToken(RIGHT_PAREN)) {
-				printToken();
-				nextToken();
-				return value;
-			}
-			//오류
-			// RIGHT PARENT WARNING
-			else {
-				logWarning(NON_PAIR_LEFT_PAREN);
-				cout << ")";
-				isErrorOccurred = true;
-			}
+			return value;
 		}
+		//오류
+		// RIGHT PARENT WARNING
 		else {
-			//오류
-			// MULTIPLE OPERATION WARNING
-			if (isToken(MULT_OP) || isToken(ADD_OP)) {
-				logWarning(MULTIPLE_OP);
-				nextToken();
-				factor();
-			}
-			// isErrorOccurred = true;
+			logWarning(NON_PAIR_LEFT_PAREN);
+			cout << ")";
+			isErrorOccurred = true;
 		}
 	}
-	return 0;
+	else {
+		//오류
+		// MULTIPLE OPERATION WARNING
+		if (isToken(MULT_OP) || isToken(ADD_OP)) {
+			logWarning(MULTIPLE_OP);
+			nextToken();
+			factor();
+		}
+		// isErrorOccurred = true;
+	}
+	
+	
 }
 
 OptionalDouble Parser::factor_tail() {
@@ -174,27 +184,28 @@ OptionalDouble Parser::factor_tail() {
 			value = 1.0 / value.data;
 		}
 		if (!isErrorOccurred) {
-			return OptionalDouble(1.0); // 공 스트링 (연산 없음)
+			OptionalDouble::GetUnknown();
 		}
 		return value;
 	}
 	else {
+		if (isErrorOccurred) {
+			return OptionalDouble::GetUnknown();
+		}
+		return OptionalDouble(1.0); // 공 스트링 (연산 없음)
 	}
 }
 
 
 std::string Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
-	if (!isErrorOccurred) {
-		if (isToken(IDENT)) {
-			std::string value = getToken();
-			_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언
-			//_symbolTable.find(getToken())->second.data = 0; //Identifier 선언
-			printToken();
-			idCountPerStatement += 1;
-			nextToken();
-			return value;
-		}
-	}
+	if (!isToken(IDENT)) { throw std::exception(); }
+	std::string value = getToken();
+	_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언
+	//_symbolTable.find(getToken())->second.data = 0; //Identifier 선언
+	printToken();
+	idCountPerStatement += 1;
+	nextToken();
+	return value;
 	//symbol table index 리턴할 듯 ?
 }
 
@@ -275,7 +286,7 @@ void Parser::printToken() {
 void Parser::printCountPerStatement() {
 	std::cout << "ID: " << idCountPerStatement << "; CONST:" << constCountPerStatement << "; OP: " << opCountPerStatement << "\n";
 }
-
+/*
 void Parser::printWarningAndErrorList() {
 	if (warningList.size() == 0 && errorList.size() == 0) {
 		cout << "(OK)\n";
@@ -303,7 +314,7 @@ void Parser::printWarningAndErrorList() {
 	}
 	cout << '\n';
 }
-
+*/
 void Parser::resetVariablesForNewStatement() {
 		idCountPerStatement = 0;
 		constCountPerStatement = 0;
