@@ -77,9 +77,9 @@ void Parser::statement() {
 		//Error 발생한 Statement, Error 출력 후 넘어가기
 		_symbolTable.find(id)->second = OptionalInt::GetUnknown();
 	}
-	
-	_symbolTable.find(id)->second = value;
-	
+	else {
+		_symbolTable.find(id)->second = value;
+	}
 	// 대입문
 	// symbolTablep[identVal] = value;
 
@@ -178,10 +178,7 @@ OptionalDouble Parser::factor_tail() {
 		}
 		return value;
 	}
-	
-	
 	else {
-		return OptionalDouble::GetUnknown();
 	}
 }
 
@@ -256,7 +253,6 @@ int Parser::mult_op() {
 
 OptionalInt Parser::const_val(){
 	if (!isToken(CONST)) { throw std::exception(); } // 코드 오류 - 코드 확인 하기
-
 	int data;
 	std::stringstream ss(getToken());
 	printToken();
@@ -264,9 +260,11 @@ OptionalInt Parser::const_val(){
 	ss >> data;
 	nextToken();
 
+	
 	if (isErrorOccurred) { // 오류 발생 시 - Statement의 데이터 Unknown처리
 		return OptionalInt::GetUnknown();
 	}
+
 	return OptionalInt(data);
 }
 

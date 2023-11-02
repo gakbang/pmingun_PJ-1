@@ -91,7 +91,8 @@ public:
 	static OptionalInt GetUnknown() { return OptionalInt(true); }
 
 	OptionalInt() : OptionalData() {} //Null Data
-	OptionalInt(int data) : OptionalData(data) {}
+	OptionalInt(int data) : OptionalData(data) {
+	}
 	
 
 	OptionalInt& operator=(const OptionalInt& o) {
