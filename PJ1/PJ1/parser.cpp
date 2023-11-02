@@ -12,44 +12,43 @@
 
 
 void Parser::Parse() { program(); }
-void Parser::program() { statements(); cout << "\n"; debug2(); return ; }
+
+//TOKEN ÇÔ¼ö
+
+void Parser::program() { resetVariablesForNewStatement(); statements(); cout << "\n"; debug2(); return; }
 
 void Parser::statements() {
-	statement();
+
+	statement();//´ÙÀ½ STATEMENT
+
 	while (isToken(SEMI_COLON)){
-		std::cout << getToken() << endl;
+		std::cout << getToken() << endl; // SEMICOLON Ãâ·Â
+		printStatementLog();// ERROR, WARNING, COUNT Ãâ·ÂÈÄ ¸®¼Â
+		nextToken(); // SEMICOLON Á¦°Å
+		statement();//´ÙÀ½ STATEMENT
+	}// ¹İº¹¹® Á¾·á
 
-		printCountPerStatement();
-		//printWarningAndErrorList();
-		resetVariablesForNewStatement();
 
-		nextToken();
-		statement();
-	}
 	if (!isEmpty()) {
-		//ì—ëŸ¬ : Tokenì´ ë‚¨ì•„ ìˆìŒ
+		//¿¡·¯ : TokenÀÌ ³²¾Æ ÀÖÀ½
 		std::cout << "\nDEBUG : ERROR - TOKEN IS STILL LEFT\n";
-
 	}
+
 	cout << endl;
 
-	printCountPerStatement();
-//	printWarningAndErrorList();
-	resetVariablesForNewStatement();
+	printStatementLog();// ERROR, WARNING, COUNT Ãâ·Â ÈÄ ¸®¼Â
 	
 	return;
 }
 void Parser::statement() {
-	isErrorOccurred = false;
+	
 	std::string id;
 
-	if (isToken(IDENT)) {
-		 id = ident();
-	}
+	if (isToken(IDENT)) { id = ident(); }
 	else {
-		//ì—ëŸ¬ ì²˜ë¦¬ í•¨ìˆ˜
-		//ì—ëŸ¬ : STATEMENTê°€ IDENTë¡œ ì‹œì‘í•˜ì§€ ì•ŠìŒ
-		std::cout << "\nDEBUG : ERROR - STATEMENT NOT START WITH IDENT \n";
+		printToken();
+		logError(BEGIN_IDENT_MISSING);
+		nextToken();
 	}
 
 	if (isToken(COLON)) {
@@ -57,9 +56,8 @@ void Parser::statement() {
 		nextToken();
 	}
 	else {
-		//ì—ëŸ¬ : STATEMENTì— ASSIGNMENT_OPì˜ :ê°€ ì—†ìŒ
+		//¿¡·¯ : STATEMENT¿¡ ASSIGNMENT_OPÀÇ :°¡ ¾øÀ½
 		std::cout << "\nDEBUG : ERROR - COLON : IS MISSING\n";		
-		isErrorOccurred = true;
 	}
 	
 	if (isToken(EQUAL)) {
@@ -67,40 +65,29 @@ void Parser::statement() {
 		nextToken();
 	}
 	else {
-		//ì—ëŸ¬ : STATEMENTì— ASSIGNMENT_OPì˜ =ê°€ ì—†ìŒ
+		//¿¡·¯ : STATEMENT¿¡ ASSIGNMENT_OPÀÇ =°¡ ¾øÀ½
 		std::cout << "\nDEBUG : ERROR - ASSIGNMENT OP = IS MISSING\n";		
-		isErrorOccurred = true;
 	}
 	
 	OptionalInt value = expression();
-
-	if (isErrorOccurred) {
-		//Error ë°œìƒí•œ Statement, Error ì¶œë ¥ í›„ ë„˜ì–´ê°€ê¸°
-		_symbolTable.find(id)->second = OptionalInt::GetUnknown();
-	}
-	else {
-		_symbolTable.find(id)->second = value;
-	}
-	// ëŒ€ì…ë¬¸
-	// symbolTablep[identVal] = value;
-
-
+	// Error Á¸Àç ¿©ºÎ È®ÀÎ ÈÄ ´ëÀÔ¹® ½ÇÇà
+	if (id.empty()) return; // id¸¦ Ã£À» ¼ö ¾øÀ½.
+	if (hasError()) {_symbolTable.find(id)->second = OptionalInt::GetUnknown();	}
+	else {_symbolTable.find(id)->second = value;}
+	// ´ëÀÔ¹® ½ÇÇà ¿Ï·á
+	
 	return;
 }
 
 OptionalInt Parser::expression() {
-	if (!isErrorOccurred) {
-		OptionalInt value1 = term();
-		OptionalInt value2 = term_tail();
-		return (value1 + value2);
-	}
-	return OptionalInt::GetUnknown();
+	OptionalInt value1 = term();
+	OptionalInt value2 = term_tail();
+	return (value1 + value2);
 }
 
 OptionalInt Parser::term() {
 	OptionalDouble value1 = ConvertType<OptionalDouble, OptionalInt>(factor());
 	OptionalDouble value2 = factor_tail();
-
 	return ConvertType<OptionalInt, OptionalDouble>(value1 * value2);
 }
 
@@ -110,16 +97,11 @@ OptionalInt Parser::term_tail() {
 		OptionalInt value1 = term();
 		OptionalInt value2 = term_tail();
 		OptionalInt value = value1 + value2;
-		if (opType) { // - ì—°ì‚°ì¸ ê²½ìš°
-			value.data = 0 - value.data;
-		}
+		if (opType) { value.data = 0 - value.data; }
 		return value;
 	}
-	else {
-		return OptionalInt(0); // ê³µ ìŠ¤íŠ¸ë§ (ì—°ì‚° ì—†ìŒ)
-	}
-	
-	
+	else { return OptionalInt(0); } // °ø ½ºÆ®¸µ (¿¬»ê ¾øÀ½)
+
 }
 
 OptionalInt Parser::factor() {
@@ -138,23 +120,27 @@ OptionalInt Parser::factor() {
 			nextToken();
 			return value;
 		}
-		//ì˜¤ë¥˜
+		//¿À·ù
 		// RIGHT PARENT WARNING
 		else {
 			logWarning(NON_PAIR_LEFT_PAREN);
 			cout << ")";
-			//isErrorOccurred = true; << unknown data ë„ìš°ëŠ” ì—ëŸ¬ ì•„ë‹˜
+			return value;
 		}
 	}
 	else {
-		//ì˜¤ë¥˜
+		//¿À·ù
 		// MULTIPLE OPERATION WARNING
 		if (isToken(MULT_OP) || isToken(ADD_OP)) {
 			logWarning(MULTIPLE_OP);
 			nextToken();
 			factor();
 		}
-		
+		else {
+			logError(UNKNOWN_ERROR);
+			nextToken();
+			factor();
+		}
 	}
 	
 	
@@ -166,13 +152,13 @@ OptionalDouble Parser::factor_tail() {
 		OptionalInt value1 = factor();
 		OptionalDouble value2 = factor_tail();
 		OptionalDouble value = value1.data * value2.data;
-		if (opType) { // ë‚˜ëˆ„ê¸° ì—°ì‚°ì¸ ê²½ìš°
+		if (opType) { // ³ª´©±â ¿¬»êÀÎ °æ¿ì
 			if (value.isUnknown) {
-				// Unknownê°’ ë¦¬í„´
+				// Unknown°ª ¸®ÅÏ
 				return OptionalDouble::GetUnknown();
 			}
 			else if (value.data == 0) {
-				//0ìœ¼ë¡œ ë‚˜ëˆ„ëŠ” ì—ëŸ¬
+				//0À¸·Î ³ª´©´Â ¿¡·¯
 				return OptionalDouble();
 			}
 			else {
@@ -182,77 +168,78 @@ OptionalDouble Parser::factor_tail() {
 		return value;
 	}
 	else {
-		return OptionalDouble(1.0); // ê³µ ìŠ¤íŠ¸ë§ (ì—°ì‚° ì—†ìŒ)
+		return OptionalDouble(1.0); // °ø ½ºÆ®¸µ (¿¬»ê ¾øÀ½)
 	}
 }
 
 
-std::string Parser::ident(){ // STATEMENTì˜ ê°€ì¥ ì•ì— ë‚˜ì˜¤ëŠ” identifier
+std::string Parser::ident(){ // STATEMENTÀÇ °¡Àå ¾Õ¿¡ ³ª¿À´Â identifier
 	if (!isToken(IDENT)) { throw std::exception(); }
 	std::string value = getToken();
-	_symbolTable.find(getToken())->second.isNull = false; //Identifier ì„ ì–¸
-	//_symbolTable.find(getToken())->second.data = 0; //Identifier ì„ ì–¸
+	_symbolTable.find(getToken())->second.isNull = false; //Identifier ¼±¾ğ
+	//_symbolTable.find(getToken())->second.data = 0; //Identifier ¼±¾ğ
 	printToken();
 	idCountPerStatement += 1;
 	nextToken();
 	return value;
-	//symbol table index ë¦¬í„´í•  ë“¯ ?
+	//symbol table index ¸®ÅÏÇÒ µí ?
 }
 
-OptionalInt Parser::ident_val() { // ident value ì½ì–´ì˜¤ê¸°
+OptionalInt Parser::ident_val() { // ident value ÀĞ¾î¿À±â
 	OptionalInt value;
-	if (!isToken(IDENT)) { throw std::exception(); } //ì½”ë“œ ì˜¤ë¥˜ - ì½”ë“œ í™•ì¸í•˜ê¸°
+	if (!isToken(IDENT)) { throw std::exception(); } //ÄÚµå ¿À·ù - ÄÚµå È®ÀÎÇÏ±â
 	 {
 		printToken();
 		idCountPerStatement += 1;
 
 		auto iter = _symbolTable.find(getToken());
 		if (iter->second.isNull) {
-			// Error : ì•„ì§ ì„ ì–¸ë˜ì§€ ì•Šì€ ë³€ìˆ˜ ì°¸ì¡°
-			iter->second.isNull = false; //Identifier ì„ ì–¸
-			iter->second.isUnknown = true; //Identifier ì„ ì–¸
+			// Error : ¾ÆÁ÷ ¼±¾ğµÇÁö ¾ÊÀº º¯¼ö ÂüÁ¶
+			iter->second.isNull = false; //Identifier ¼±¾ğ
+			iter->second.isUnknown = true; //Identifier ¼±¾ğ
 
 		}
 		nextToken();
 		return iter->second;
 		// value = symbol table[ident]
-		//return value; //ë³€ìˆ˜ì˜ value
+		//return value; //º¯¼öÀÇ value
 	}
 	
-	if (isErrorOccurred) {
+	if (hasError()) {
+		
 		return OptionalInt::GetUnknown();
 	}
 	
 }
 
 int Parser::add_op() {
-	if (!isToken(ADD_OP)) { throw std::exception(); }//ì½”ë“œ ì˜¤ë¥˜ - ì½”ë“œ í™•ì¸í•˜ê¸°
+	if (!isToken(ADD_OP)) { throw std::exception(); }//ÄÚµå ¿À·ù - ÄÚµå È®ÀÎÇÏ±â
 
 	printToken();
 	opCountPerStatement += 1;
-	int value = getToken() == "-"; //  +, - êµ¬ë¶„ê°€ëŠ¥í•œ ë¦¬í„´ê°’
+	int value = getToken() == "-"; //  +, - ±¸ºĞ°¡´ÉÇÑ ¸®ÅÏ°ª
 	nextToken();
-	if (isErrorOccurred) {
-		return 0;//Null // ì˜¤ë¥˜ ë°œìƒ ì‹œ - Statementì˜ ë°ì´í„° Unknownì²˜ë¦¬
+	if (hasError()) {
+		return 0;//Null // ¿À·ù ¹ß»ı ½Ã - StatementÀÇ µ¥ÀÌÅÍ UnknownÃ³¸®
 	}
 	return value;
 }
 
 int Parser::mult_op() {
-	if (!isToken(MULT_OP)) { throw std::exception(); } //ì½”ë“œ ì˜¤ë¥˜ - ì½”ë“œ í™•ì¸í•˜ê¸°
+	if (!isToken(MULT_OP)) { throw std::exception(); } //ÄÚµå ¿À·ù - ÄÚµå È®ÀÎÇÏ±â
 
 	printToken();
 	opCountPerStatement += 1;
 	int value = (getToken() == "/");
 	nextToken();
 
-	if (isErrorOccurred) return 0; //Null // ì˜¤ë¥˜ ë°œìƒ ì‹œ - Statementì˜ ë°ì´í„° Unknownì²˜ë¦¬
+	if (hasError()) return 0; //Null // ¿À·ù ¹ß»ı ½Ã - StatementÀÇ µ¥ÀÌÅÍ UnknownÃ³¸®
 
 	return value;
 }
 
 OptionalInt Parser::const_val(){
-	if (!isToken(CONST)) { throw std::exception(); } // ì½”ë“œ ì˜¤ë¥˜ - ì½”ë“œ í™•ì¸ í•˜ê¸°
+	if (!isToken(CONST)) { throw std::exception(); } // ÄÚµå ¿À·ù - ÄÚµå È®ÀÎ ÇÏ±â
 	int data;
 	std::stringstream ss(getToken());
 	printToken();
@@ -260,12 +247,30 @@ OptionalInt Parser::const_val(){
 	ss >> data;
 	nextToken();
 	
-	if (isErrorOccurred) { // ì˜¤ë¥˜ ë°œìƒ ì‹œ - Statementì˜ ë°ì´í„° Unknownì²˜ë¦¬
+	if (hasError()) { // ¿À·ù ¹ß»ı ½Ã - StatementÀÇ µ¥ÀÌÅÍ UnknownÃ³¸®
 		return OptionalInt::GetUnknown();
 	}
 
 	return OptionalInt(data);
 }
+
+//TOKEN ÇÔ¼ö Á¾·á
+
+
+
+//Error Manage Function
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -298,13 +303,13 @@ void Parser::printWarningAndErrorList() {
 			cout << "[WARNING] : ";
 			switch (it) {
 			case MULTIPLE_OP:
-				std::cout << "ì´í•­ ì—°ì‚°ìê°€ í•œë²ˆì— 2ê°œ ì´ìƒ ì‚¬ìš©ë˜ì—ˆìŠµë‹ˆë‹¤."<<std::endl;
-				//std::cout << "ì´í•­ ì—°ì‚°ìê°€ í•œ ë²ˆì— 2ê°œ ì´ìƒ ì‚¬ìš©ë˜ì—ˆìŠµë‹ˆë‹¤" << std::endl;
+				std::cout<< "ÀÌÇ× ¿¬»êÀÚ°¡ ÇÑ¹ø¿¡ 2°³ ÀÌ»ó »ç¿ëµÇ¾ú½À´Ï´Ù." << std::endl;
+				
 				break;
 
 			case NON_PAIR_LEFT_PAREN:
-				std::cout << "(ì— ì§ì„ ì´ë£¨ëŠ” )ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤." << std::endl;
-				//std::cout << "(ì— ì§ì„ ì´ë£¨ëŠ” )ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤" << std::endl;
+				std::cout << "(¿¡ Â¦À» ÀÌ·ç´Â )¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù." << std::endl;
+				
 				break;
 			}
 		}
@@ -312,22 +317,20 @@ void Parser::printWarningAndErrorList() {
 		for (vector<Errors>::iterator it = errorList.begin(); it != errorList.end(); ++it) {
 			cout << "<ERROR> : ";
 			switch (*it) {
+			case UNKNOWN_ERROR:
+				std::cout << "È®ÀÎÇÒ ¼ö ¾ø´Â ¿¡·¯°¡ ¹ß»ıÇß½À´Ï´Ù." << std::endl;
+				break;
 			case UNKNOWN_ID:
-				//std::cout << "ì²˜ë¦¬í•  ìˆ˜ ì—†ëŠ” lexemeì´ ì…ë ¥ë˜ì—ˆìŠµë‹ˆë‹¤" << std::endl;
+				std::cout << "Ã³¸®ÇÒ ¼ö ¾ø´Â lexemeÀÌ ÀÔ·ÂµÇ¾ú½À´Ï´Ù" << std::endl;
+				break;
+			case BEGIN_IDENT_MISSING:
+				std::cout << "\nDEBUG : ERROR - STATEMENT NOT START WITH IDENT \n";
 				break;
 			}
 		}
 	}
 	cout << '\n';
 }
-
-/*
-void Parser::printWarningAndErrorList() {
-	if (warningList.size() == 0 && errorList.size() == 0) {
-		cout << "(OK)\n";
-	} 
-	
-*/
 
 
 void Parser::resetVariablesForNewStatement() {

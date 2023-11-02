@@ -38,6 +38,7 @@ public:
 	bool isValid() { return !(isNull | isUnknown); }
 	
 	std::string GetData() {
+		if (isNull) return "NullData";
 		if (isUnknown) return "Unknown";
 		else return to_string(data);
 	}
@@ -148,13 +149,12 @@ private:
 	vector<Warnings> warningList = {};
 	vector<Errors> errorList = {};
 
-	bool hasError() { return errorList.empty(); }
+	bool hasError() { return errorList.size() != 0; }
 
 	int idCountPerStatement = 0;
 	int constCountPerStatement = 0;
 	int opCountPerStatement = 0;
 
-	bool isErrorOccurred = false;
 
 	void program();
 	void statements();
@@ -173,6 +173,7 @@ private:
 	OptionalInt const_val();
 
 	// Log Function
+	void printStatementLog() { printCountPerStatement(); printWarningAndErrorList(); resetVariablesForNewStatement(); }
 	void printToken();
 	void printCountPerStatement();
 	void printWarningAndErrorList();
@@ -182,6 +183,12 @@ private:
 	void logError(Errors);
 	void logWarning(Warnings);
 
+	//Error Manage Function
+	void ManageInvalidInput();
+	void ManageInvalidInput(Tokens); //현재 Token을 파라미터로 전달, 다음 토큰에 따라 오류 처리
+	void ManageInvalidInput(Errors); //Error / Warning Log를 전달 오류 처리
+	void ManageInvalidInput(Warnings); //Error / Warning Log를 전달 오류 처리
+
 
 
 	void debug() {
@@ -190,7 +197,7 @@ private:
 		}
 	}
 
-	void debug2() {
+	void debug2() { // symbolTable의 변수명, 저장된 데이터값 출력
 		for (auto i : _symbolTable) {
 			std::cout << i.first << " : " << i.second.GetData() << std::endl;
 		}
