@@ -7,13 +7,14 @@ typedef enum {
     UNKNOWN_ERROR,
     UNKNOWN_ID,
     BEGIN_IDENT_MISSING,
-    TOKEN_LEFT,
-    
+    TOKEN_LEFT,    
 } Errors;
 
 typedef enum {
-    MULTIPLE_OP,
+    INVALID_OP,
     NON_PAIR_LEFT_PAREN,
+    EQUAL_MISSING,
+    COLON_MISSING,
 } Warnings;
 
 #endif /* error_warning_h */
