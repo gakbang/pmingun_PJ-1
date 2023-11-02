@@ -136,7 +136,11 @@ OptionalInt Parser::factor() {
 			nextToken();
 			factor();
 		}
-		
+		else {
+			logError(UNKNOWN_ERROR);
+			nextToken();
+			factor();
+		}
 	}
 	
 	
@@ -151,7 +155,6 @@ OptionalDouble Parser::factor_tail() {
 		if (opType) { // 나누기 연산인 경우
 			if (value.isUnknown) {
 				// Unknown값 리턴
-				
 				return OptionalDouble::GetUnknown();
 			}
 			else if (value.data == 0) {
@@ -314,6 +317,9 @@ void Parser::printWarningAndErrorList() {
 		for (vector<Errors>::iterator it = errorList.begin(); it != errorList.end(); ++it) {
 			cout << "<ERROR> : ";
 			switch (*it) {
+			case UNKNOWN_ERROR:
+				std::cout << "확인할 수 없는 에러가 발생했습니다." << std::endl;
+				break;
 			case UNKNOWN_ID:
 				std::cout << "처리할 수 없는 lexeme이 입력되었습니다" << std::endl;
 				break;
