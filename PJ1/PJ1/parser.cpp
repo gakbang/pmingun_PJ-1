@@ -24,7 +24,7 @@ void Parser::statements() {
     while (isToken(SEMI_COLON)) {
         std::cout << getToken() << endl; // SEMICOLON
         printStatementLog();// ERROR, WARNING, COUNT message
-        nextToken();        // SEMICOLON
+        moveNextAndCheckValid();        // SEMICOLON
         
         statement();        //     STATEMENT
     }
@@ -49,12 +49,12 @@ void Parser::statement() {
     else {
         printToken();
         logError(BEGIN_IDENT_MISSING);
-        nextToken();
+        moveNextAndCheckValid();
     }
     
     if (isToken(COLON)) {
         printToken();
-        nextToken();
+        moveNextAndCheckValid();
     }
     else {
         //     : STATEMENT   ASSIGNMENT_OP   :
@@ -64,13 +64,13 @@ void Parser::statement() {
     
     if (isToken(EQUAL)) {
         printToken();
-        nextToken();
+        moveNextAndCheckValid();
     }
     else {
         //     : STATEMENT   ASSIGNMENT_OP   =
         logWarning(EQUAL_MISSING);
         cout << "=";
-        // nextToken();
+        // moveNextAndCheckValid();
     }
     
     OptionalInt value = expression();
@@ -119,12 +119,12 @@ OptionalInt Parser::factor() {
     }
     else if (isToken(LEFT_PAREN)) {
         printToken();
-        nextToken();
+        moveNextAndCheckValid();
         
         OptionalInt value = expression();
         if (isToken(RIGHT_PAREN)) {
             printToken();
-            nextToken();
+            moveNextAndCheckValid();
             return value;
         }
         //
@@ -140,12 +140,12 @@ OptionalInt Parser::factor() {
         // MULTIPLE OPERATION WARNING
         if (isToken(MULT_OP) || isToken(ADD_OP)) {
             logWarning(INVALID_OP);
-            nextToken();
+            moveNextAndCheckValid();
             return factor();
         }
         else {
             logError(UNKNOWN_ERROR);
-            nextToken();
+            moveNextAndCheckValid();
             return factor();
         }
     }
@@ -185,7 +185,7 @@ std::string Parser::ident() { // STATEMENT begin identifier - check declarations
     //_symbolTable.find(getToken())->second.data = 0; //Identifier
     printToken();
     idCountPerStatement += 1;
-    nextToken();
+    moveNextAndCheckValid();
     return value;
 }
 
@@ -203,7 +203,7 @@ OptionalInt Parser::ident_val() { // ident value  о
             iter->second.isUnknown = true; //Identifier
             
         }
-        nextToken();
+        moveNextAndCheckValid();
         return iter->second;
         // value = symbol table[ident]
         //return value;
@@ -222,7 +222,7 @@ int Parser::add_op() {
     printToken();
     opCountPerStatement += 1;
     int value = getToken() == "-"; // return true only if op is -
-    nextToken();
+    moveNextAndCheckValid();
     if (hasError()) {
         return 0;// return null value - no logic for unknown value
     }
@@ -235,7 +235,7 @@ int Parser::mult_op() {
     printToken();
     opCountPerStatement += 1;
     int value = (getToken() == "/");
-    nextToken();
+    moveNextAndCheckValid();
     
     if (hasError()) return 0; //Null
     
@@ -250,7 +250,7 @@ OptionalInt Parser::const_val() {
     printToken();
     constCountPerStatement += 1;
     ss >> data;
-    nextToken();
+    moveNextAndCheckValid();
     
     if (hasError()) { //ERROR -> return Unknown value
         return OptionalInt::GetUnknown();
@@ -312,8 +312,12 @@ void Parser::printWarningAndErrorList() {
                     std::cout << "Romove given invalid operation (additional op / invalid position)" << std::endl;
                     break;
                     
+                case UNKNOWN_ID:
+                    std::cout << "Invalid Lexem is detected" << std::endl;
+                    break;
+                    
                 case NON_PAIR_LEFT_PAREN:
-                    std::cout << "() PAIR DOES NOT MATCH" << std::endl;
+                    std::cout << "() Pair does not matched" << std::endl;
                     break;
                     
                 case EQUAL_MISSING:
@@ -331,9 +335,6 @@ void Parser::printWarningAndErrorList() {
             switch (*it) {
                 case UNKNOWN_ERROR:
                     std::cout << "UNKNOWN ERROR IS DETECTED" << std::endl;
-                    break;
-                case UNKNOWN_ID:
-                    std::cout << "INVALID LEXEME IS DETECTED " << std::endl;
                     break;
                 case BEGIN_IDENT_MISSING:
                     std::cout << "THE STATEMENT DOES NOT BEGIN WITH IDENTIFIER" << std::endl;
