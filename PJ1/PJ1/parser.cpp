@@ -23,12 +23,8 @@ void Parser::statements() {
 
 	while (isToken(SEMI_COLON)){
 		std::cout << getToken() << endl; // SEMICOLON 출력
-		
 		printStatementLog();// ERROR, WARNING, COUNT 출력후 리셋
-
 		nextToken(); // SEMICOLON 제거
-
-		
 		statement();//다음 STATEMENT
 	}// 반복문 종료
 
@@ -50,8 +46,9 @@ void Parser::statement() {
 
 	if (isToken(IDENT)) { id = ident(); }
 	else {
-		ManageInvalidInput(BEGIN_IDENT_MISSING);
-		id = "";
+		printToken();
+		logError(BEGIN_IDENT_MISSING);
+		nextToken();
 	}
 
 	if (isToken(COLON)) {
@@ -70,12 +67,11 @@ void Parser::statement() {
 	else {
 		//에러 : STATEMENT에 ASSIGNMENT_OP의 =가 없음
 		std::cout << "\nDEBUG : ERROR - ASSIGNMENT OP = IS MISSING\n";		
-		
 	}
 	
 	OptionalInt value = expression();
 	// Error 존재 여부 확인 후 대입문 실행
-	if (id.empty()) return;
+	if (id.empty()) return; // id를 찾을 수 없음.
 	if (hasError()) {_symbolTable.find(id)->second = OptionalInt::GetUnknown();	}
 	else {_symbolTable.find(id)->second = value;}
 	// 대입문 실행 완료
@@ -87,13 +83,11 @@ OptionalInt Parser::expression() {
 	OptionalInt value1 = term();
 	OptionalInt value2 = term_tail();
 	return (value1 + value2);
-	
 }
 
 OptionalInt Parser::term() {
 	OptionalDouble value1 = ConvertType<OptionalDouble, OptionalInt>(factor());
 	OptionalDouble value2 = factor_tail();
-
 	return ConvertType<OptionalInt, OptionalDouble>(value1 * value2);
 }
 
@@ -103,16 +97,11 @@ OptionalInt Parser::term_tail() {
 		OptionalInt value1 = term();
 		OptionalInt value2 = term_tail();
 		OptionalInt value = value1 + value2;
-		if (opType) { // - 연산인 경우
-			value.data = 0 - value.data;
-		}
+		if (opType) { value.data = 0 - value.data; }
 		return value;
 	}
-	else {
-		return OptionalInt(0); // 공 스트링 (연산 없음)
-	}
-	
-	
+	else { return OptionalInt(0); } // 공 스트링 (연산 없음)
+
 }
 
 OptionalInt Parser::factor() {
@@ -126,7 +115,6 @@ OptionalInt Parser::factor() {
 		printToken();
 		nextToken();
 		OptionalInt value = expression();
-		std::cout << endl<<value.data<<endl;
 		if (isToken(RIGHT_PAREN)) {
 			printToken();
 			nextToken();
@@ -270,21 +258,7 @@ OptionalInt Parser::const_val(){
 //Error Manage Function
 
 
-void Parser::ManageInvalidInput(Tokens token) {
 
-}
-
-void Parser::ManageInvalidInput(Warnings warning) {
-	logWarning(warning);
-	nextToken();
-}
-
-
-void Parser::ManageInvalidInput(Errors error) {
-	printToken();
-	logError(error);
-	nextToken();
-}
 
 
 

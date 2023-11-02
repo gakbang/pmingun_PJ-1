@@ -1,2 +1,2 @@
-123 := 2;
-operand2 := 3 + operand1
+operand1 := 2;
+operand2 := (((((((((((3 + operand1 * 2 ) * ((2))
