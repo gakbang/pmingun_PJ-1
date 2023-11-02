@@ -35,5 +35,8 @@
     <ClInclude Include="pj1\token.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PJ1\error_warning.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -5,10 +5,11 @@
 #include <iostream>
 #include <sstream>
 
+#include "error_warning.hpp"
 #include "lexical_analyzer.hpp"	
 #include "parser.hpp"
 #include "token.hpp"
-#include "error_warning.hpp"
+
 
 void Parser::Parse() { program(); }
 void Parser::program() { statements(); cout << "\n"; debug2(); return ; }
@@ -19,7 +20,7 @@ void Parser::statements() {
 		std::cout << getToken() << endl;
 
 		printCountPerStatement();
-		printWarningAndErrorList();
+		//printWarningAndErrorList();
 		resetVariablesForNewStatement();
 
 		nextToken();
@@ -33,7 +34,7 @@ void Parser::statements() {
 	cout << endl;
 
 	printCountPerStatement();
-	printWarningAndErrorList();
+//	printWarningAndErrorList();
 	resetVariablesForNewStatement();
 	
 	return;
@@ -61,7 +62,7 @@ void Parser::statement() {
 		isErrorOccurred = true;
 	}
 	
-	if (!isEmpty() && isToken(EQUAL)) {
+	if (isToken(EQUAL)) {
 		printToken();
 		nextToken();
 	}
@@ -97,72 +98,66 @@ OptionalInt Parser::expression() {
 }
 
 OptionalInt Parser::term() {
-	if (!isErrorOccurred) {
-		OptionalDouble value1 = ConvertType<OptionalDouble,OptionalInt>(factor());
-		OptionalDouble value2 = factor_tail();
+	OptionalDouble value1 = ConvertType<OptionalDouble, OptionalInt>(factor());
+	OptionalDouble value2 = factor_tail();
 
-		return ConvertType<OptionalInt,OptionalDouble>(value1 * value2);
-	}
-		return OptionalInt::GetUnknown();
-
+	return ConvertType<OptionalInt, OptionalDouble>(value1 * value2);
 }
 
 OptionalInt Parser::term_tail() {
-	if (!isErrorOccurred) {
-		if (isToken(ADD_OP)) {
-			int opType = add_op();
-			OptionalInt value1 = term();
-			OptionalInt value2 = term_tail();
-			OptionalInt value = value1 + value2;
-			if (opType) { // - 연산인 경우
-				value.data = 0 - value.data;
-			}
-			return value;
+	if (isToken(ADD_OP)) {
+		int opType = add_op();
+		OptionalInt value1 = term();
+		OptionalInt value2 = term_tail();
+		OptionalInt value = value1 + value2;
+		if (opType) { // - 연산인 경우
+			value.data = 0 - value.data;
 		}
-		else{
-			return OptionalInt(0); // 공 스트링 (연산 없음)
-		}
+		return value;
 	}
-	return OptionalInt::GetUnknown();
+	else {
+		return OptionalInt(0); // 공 스트링 (연산 없음)
+	}
+	
+	
 }
 
 OptionalInt Parser::factor() {
-	if (!isErrorOccurred) {
-		if (isToken(IDENT)) {
-			return ident_val();
-		}
-		else if (isToken(CONST)) {
-			return const_val();
-		}
-		else if (isToken(LEFT_PAREN)) {
+	if (isToken(IDENT)) {
+		return ident_val();
+	}
+	else if (isToken(CONST)) {
+		return const_val();
+	}
+	else if (isToken(LEFT_PAREN)) {
+		printToken();
+		nextToken();
+		OptionalInt value = expression();
+		if (isToken(RIGHT_PAREN)) {
 			printToken();
 			nextToken();
-			OptionalInt value = expression();
-			if (isToken(RIGHT_PAREN)) {
-				printToken();
-				nextToken();
-				return value;
-			}
-			//오류
-			// RIGHT PARENT WARNING
-			else {
-				logWarning(NON_PAIR_LEFT_PAREN);
-				cout << ")";
-				isErrorOccurred = true;
-			}
+			return value;
 		}
+		//오류
+		// RIGHT PARENT WARNING
 		else {
-			//오류
-			// MULTIPLE OPERATION WARNING
-			if (isToken(MULT_OP) || isToken(ADD_OP)) {
-				logWarning(MULTIPLE_OP);
-				nextToken();
-				factor();
-			}
-			// isErrorOccurred = true;
+			logWarning(NON_PAIR_LEFT_PAREN);
+			cout << ")";
+			//isErrorOccurred = true; << unknown data 띄우는 에러 아님
 		}
 	}
-	return 0;
+	else {
+		//오류
+		// MULTIPLE OPERATION WARNING
+		if (isToken(MULT_OP) || isToken(ADD_OP)) {
+			logWarning(MULTIPLE_OP);
+			nextToken();
+			factor();
+		}
+		
+	}
+	
+	
 }
 
 OptionalDouble Parser::factor_tail() {
@@ -172,10 +167,17 @@ OptionalDouble Parser::factor_tail() {
 		OptionalDouble value2 = factor_tail();
 		OptionalDouble value = value1.data * value2.data;
 		if (opType) { // 나누기 연산인 경우
-			value = 1.0 / value.data;
-		}
-		if (!isErrorOccurred) {
-			return OptionalDouble::GetUnknown(); // 공 스트링 (연산 없음)
+			if (value.isUnknown) {
+				// Unknown값 리턴
+				return OptionalDouble::GetUnknown();
+			}
+			else if (value.data == 0) {
+				//0으로 나누는 에러
+				return OptionalDouble();
+			}
+			else {
+				value = 1.0 / value.data;
+			}
 		}
 		return value;
 	}
@@ -186,17 +188,14 @@ OptionalDouble Parser::factor_tail() {
 
 
 std::string Parser::ident(){ // STATEMENT의 가장 앞에 나오는 identifier
-	if (!isErrorOccurred) {
-		if (isToken(IDENT)) {
-			std::string value = getToken();
-			_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언
-			//_symbolTable.find(getToken())->second.data = 0; //Identifier 선언
-			printToken();
-			idCountPerStatement += 1;
-			nextToken();
-			return value;
-		}
-	}
+	if (!isToken(IDENT)) { throw std::exception(); }
+	std::string value = getToken();
+	_symbolTable.find(getToken())->second.isNull = false; //Identifier 선언
+	//_symbolTable.find(getToken())->second.data = 0; //Identifier 선언
+	printToken();
+	idCountPerStatement += 1;
+	nextToken();
+	return value;
 	//symbol table index 리턴할 듯 ?
 }
 
@@ -268,6 +267,20 @@ OptionalInt Parser::const_val(){
 	return OptionalInt(data);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Parser::printToken() {
 	std::cout << getToken();
 }
@@ -278,31 +291,44 @@ void Parser::printCountPerStatement() {
 
 void Parser::printWarningAndErrorList() {
 	if (warningList.size() == 0 && errorList.size() == 0) {
-		cout << "(OK)\n";
-	} else {
-		for (vector<Warnings>::iterator it = warningList.begin() ; it != warningList.end(); ++it) {
+		std::cout << "(OK)" << std::endl;
+	}
+	else {
+		for (auto it : warningList) {
 			cout << "[WARNING] : ";
-			switch(*it) {
-				case MULTIPLE_OP:
-					cout << "이항 연산자가 한 번에 2개 이상 사용되었습니다" << '\n';
-					break;
-				
-				case NON_PAIR_LEFT_PAREN:
-					cout << "(에 짝을 이루는 )를 찾을 수 없습니다" << '\n';
-					break;
+			switch (it) {
+			case MULTIPLE_OP:
+				std::cout << "이항 연산자가 한번에 2개 이상 사용되었습니다."<<std::endl;
+				//std::cout << "이항 연산자가 한 번에 2개 이상 사용되었습니다" << std::endl;
+				break;
+
+			case NON_PAIR_LEFT_PAREN:
+				std::cout << "(에 짝을 이루는 )를 찾을 수 없습니다." << std::endl;
+				//std::cout << "(에 짝을 이루는 )를 찾을 수 없습니다" << std::endl;
+				break;
 			}
 		}
-    for (vector<Errors>::iterator it = errorList.begin() ; it != errorList.end(); ++it) {
-				cout << "<ERROR> : ";
-				switch(*it) {
-					case UNKNOWN_ID:
-					cout << "처리할 수 없는 lexeme이 입력되었습니다" << '\n';
-					break;	
-				}
+
+		for (vector<Errors>::iterator it = errorList.begin(); it != errorList.end(); ++it) {
+			cout << "<ERROR> : ";
+			switch (*it) {
+			case UNKNOWN_ID:
+				//std::cout << "처리할 수 없는 lexeme이 입력되었습니다" << std::endl;
+				break;
+			}
 		}
 	}
 	cout << '\n';
 }
+
+/*
+void Parser::printWarningAndErrorList() {
+	if (warningList.size() == 0 && errorList.size() == 0) {
+		cout << "(OK)\n";
+	} 
+	
+*/
+
 
 void Parser::resetVariablesForNewStatement() {
 		idCountPerStatement = 0;
