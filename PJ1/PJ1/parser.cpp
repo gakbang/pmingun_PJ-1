@@ -100,6 +100,7 @@ OptionalInt Parser::term() {
 	if (!isErrorOccurred) {
 		OptionalDouble value1 = ConvertType<OptionalDouble,OptionalInt>(factor());
 		OptionalDouble value2 = factor_tail();
+
 		return ConvertType<OptionalInt,OptionalDouble>(value1 * value2);
 	}
 		return OptionalInt::GetUnknown();
@@ -174,11 +175,12 @@ OptionalDouble Parser::factor_tail() {
 			value = 1.0 / value.data;
 		}
 		if (!isErrorOccurred) {
-			return OptionalDouble(1.0); // 공 스트링 (연산 없음)
+			return OptionalDouble::GetUnknown(); // 공 스트링 (연산 없음)
 		}
 		return value;
 	}
 	else {
+		return OptionalDouble(1.0); // 공 스트링 (연산 없음)
 	}
 }
 
@@ -208,7 +210,6 @@ OptionalInt Parser::ident_val() { // ident value 읽어오기
 		auto iter = _symbolTable.find(getToken());
 		if (iter->second.isNull) {
 			// Error : 아직 선언되지 않은 변수 참조
-
 			iter->second.isNull = false; //Identifier 선언
 			iter->second.isUnknown = true; //Identifier 선언
 
@@ -259,7 +260,6 @@ OptionalInt Parser::const_val(){
 	constCountPerStatement += 1;
 	ss >> data;
 	nextToken();
-
 	
 	if (isErrorOccurred) { // 오류 발생 시 - Statement의 데이터 Unknown처리
 		return OptionalInt::GetUnknown();
