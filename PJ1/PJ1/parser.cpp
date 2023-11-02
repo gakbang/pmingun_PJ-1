@@ -13,38 +13,41 @@
 
 void Parser::Parse() { program(); }
 
-//TOKEN ÇÔ¼ö
+//TOKEN ï¿½Ô¼ï¿½
 
 void Parser::program() { resetVariablesForNewStatement(); statements(); cout << "\n"; debug2(); return; }
 
 void Parser::statements() {
 
-	statement();//´ÙÀ½ STATEMENT
+	statement();//ï¿½ï¿½ï¿½ï¿½ STATEMENT
 
 	while (isToken(SEMI_COLON)){
-		std::cout << getToken() << endl; // SEMICOLON Ãâ·Â
-		printStatementLog();// ERROR, WARNING, COUNT Ãâ·ÂÈÄ ¸®¼Â
-		nextToken(); // SEMICOLON Á¦°Å
-		statement();//´ÙÀ½ STATEMENT
-	}// ¹Ýº¹¹® Á¾·á
+		std::cout << getToken() << endl; // SEMICOLON ï¿½ï¿½ï¿½
+		printStatementLog();// ERROR, WARNING, COUNT ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		nextToken(); // SEMICOLON ï¿½ï¿½ï¿½ï¿½
+		statement();//ï¿½ï¿½ï¿½ï¿½ STATEMENT
+	}// ï¿½Ýºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 
-	if (!isEmpty()) {
-		//¿¡·¯ : TokenÀÌ ³²¾Æ ÀÖÀ½
+	if (!isToken(END_OF_FILE)) {
+		//ï¿½ï¿½ï¿½ï¿½ : Tokenï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		std::cout << "\nDEBUG : ERROR - TOKEN IS STILL LEFT\n";
 	}
 
 	cout << endl;
 
-	printStatementLog();// ERROR, WARNING, COUNT Ãâ·Â ÈÄ ¸®¼Â
+	printStatementLog();// ERROR, WARNING, COUNT ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	
 	return;
 }
+
 void Parser::statement() {
 	
 	std::string id;
 
-	if (isToken(IDENT)) { id = ident(); }
+	if (isToken(IDENT)) { 
+		id = ident(); 
+	}
 	else {
 		printToken();
 		logError(BEGIN_IDENT_MISSING);
@@ -56,8 +59,10 @@ void Parser::statement() {
 		nextToken();
 	}
 	else {
-		//¿¡·¯ : STATEMENT¿¡ ASSIGNMENT_OPÀÇ :°¡ ¾øÀ½
-		std::cout << "\nDEBUG : ERROR - COLON : IS MISSING\n";		
+		//ï¿½ï¿½ï¿½ï¿½ : STATEMENTï¿½ï¿½ ASSIGNMENT_OPï¿½ï¿½ :ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		// std::cout << "\nDEBUG : ERROR - COLON : IS MISSING\n";		
+		logWarning(COLON_MISSING);
+		cout << ":";
 	}
 	
 	if (isToken(EQUAL)) {
@@ -65,16 +70,20 @@ void Parser::statement() {
 		nextToken();
 	}
 	else {
-		//¿¡·¯ : STATEMENT¿¡ ASSIGNMENT_OPÀÇ =°¡ ¾øÀ½
-		std::cout << "\nDEBUG : ERROR - ASSIGNMENT OP = IS MISSING\n";		
+		//ï¿½ï¿½ï¿½ï¿½ : STATEMENTï¿½ï¿½ ASSIGNMENT_OPï¿½ï¿½ =ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		// std::cout << "\nDEBUG : ERROR - ASSIGNMENT OP = IS MISSING\n";		
+		logWarning(EQUAL_MISSING);
+		cout << "=";
+		// nextToken();
 	}
 	
 	OptionalInt value = expression();
-	// Error Á¸Àç ¿©ºÎ È®ÀÎ ÈÄ ´ëÀÔ¹® ½ÇÇà
-	if (id.empty()) return; // id¸¦ Ã£À» ¼ö ¾øÀ½.
-	if (hasError()) {_symbolTable.find(id)->second = OptionalInt::GetUnknown();	}
+	// Error ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ô¹ï¿½ ï¿½ï¿½ï¿½ï¿½
+
+	if (id.empty()) return; // idï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+	if (hasError()) { _symbolTable.find(id)->second = OptionalInt::GetUnknown();	}
 	else {_symbolTable.find(id)->second = value;}
-	// ´ëÀÔ¹® ½ÇÇà ¿Ï·á
+	// ï¿½ï¿½ï¿½Ô¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½
 	
 	return;
 }
@@ -100,7 +109,7 @@ OptionalInt Parser::term_tail() {
 		if (opType) { value.data = 0 - value.data; }
 		return value;
 	}
-	else { return OptionalInt(0); } // °ø ½ºÆ®¸µ (¿¬»ê ¾øÀ½)
+	else { return OptionalInt(0); } // ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 
 }
 
@@ -114,13 +123,14 @@ OptionalInt Parser::factor() {
 	else if (isToken(LEFT_PAREN)) {
 		printToken();
 		nextToken();
+
 		OptionalInt value = expression();
 		if (isToken(RIGHT_PAREN)) {
 			printToken();
 			nextToken();
 			return value;
 		}
-		//¿À·ù
+		//ï¿½ï¿½ï¿½ï¿½
 		// RIGHT PARENT WARNING
 		else {
 			logWarning(NON_PAIR_LEFT_PAREN);
@@ -129,10 +139,10 @@ OptionalInt Parser::factor() {
 		}
 	}
 	else {
-		//¿À·ù
+		//ï¿½ï¿½ï¿½ï¿½
 		// MULTIPLE OPERATION WARNING
 		if (isToken(MULT_OP) || isToken(ADD_OP)) {
-			logWarning(MULTIPLE_OP);
+			logWarning(INVALID_OP);
 			nextToken();
 			factor();
 		}
@@ -142,8 +152,6 @@ OptionalInt Parser::factor() {
 			factor();
 		}
 	}
-	
-	
 }
 
 OptionalDouble Parser::factor_tail() {
@@ -152,13 +160,13 @@ OptionalDouble Parser::factor_tail() {
 		OptionalInt value1 = factor();
 		OptionalDouble value2 = factor_tail();
 		OptionalDouble value = value1.data * value2.data;
-		if (opType) { // ³ª´©±â ¿¬»êÀÎ °æ¿ì
+		if (opType) { // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 			if (value.isUnknown) {
-				// Unknown°ª ¸®ÅÏ
+				// Unknownï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				return OptionalDouble::GetUnknown();
 			}
 			else if (value.data == 0) {
-				//0À¸·Î ³ª´©´Â ¿¡·¯
+				//0ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				return OptionalDouble();
 			}
 			else {
@@ -168,41 +176,41 @@ OptionalDouble Parser::factor_tail() {
 		return value;
 	}
 	else {
-		return OptionalDouble(1.0); // °ø ½ºÆ®¸µ (¿¬»ê ¾øÀ½)
+		return OptionalDouble(1.0); // ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 	}
 }
 
 
-std::string Parser::ident(){ // STATEMENTÀÇ °¡Àå ¾Õ¿¡ ³ª¿À´Â identifier
+std::string Parser::ident(){ // STATEMENTï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Õ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ identifier
 	if (!isToken(IDENT)) { throw std::exception(); }
 	std::string value = getToken();
-	_symbolTable.find(getToken())->second.isNull = false; //Identifier ¼±¾ð
-	//_symbolTable.find(getToken())->second.data = 0; //Identifier ¼±¾ð
+	_symbolTable.find(getToken())->second.isNull = false; //Identifier ï¿½ï¿½ï¿½ï¿½
+	//_symbolTable.find(getToken())->second.data = 0; //Identifier ï¿½ï¿½ï¿½ï¿½
 	printToken();
 	idCountPerStatement += 1;
 	nextToken();
 	return value;
-	//symbol table index ¸®ÅÏÇÒ µí ?
+	//symbol table index ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ?
 }
 
-OptionalInt Parser::ident_val() { // ident value ÀÐ¾î¿À±â
+OptionalInt Parser::ident_val() { // ident value ï¿½Ð¾ï¿½ï¿½ï¿½ï¿½
 	OptionalInt value;
-	if (!isToken(IDENT)) { throw std::exception(); } //ÄÚµå ¿À·ù - ÄÚµå È®ÀÎÇÏ±â
+	if (!isToken(IDENT)) { throw std::exception(); } //ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ - ï¿½Úµï¿½ È®ï¿½ï¿½ï¿½Ï±ï¿½
 	 {
 		printToken();
 		idCountPerStatement += 1;
 
 		auto iter = _symbolTable.find(getToken());
 		if (iter->second.isNull) {
-			// Error : ¾ÆÁ÷ ¼±¾ðµÇÁö ¾ÊÀº º¯¼ö ÂüÁ¶
-			iter->second.isNull = false; //Identifier ¼±¾ð
-			iter->second.isUnknown = true; //Identifier ¼±¾ð
+			// Error : ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			iter->second.isNull = false; //Identifier ï¿½ï¿½ï¿½ï¿½
+			iter->second.isUnknown = true; //Identifier ï¿½ï¿½ï¿½ï¿½
 
 		}
 		nextToken();
 		return iter->second;
 		// value = symbol table[ident]
-		//return value; //º¯¼öÀÇ value
+		//return value; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ value
 	}
 	
 	if (hasError()) {
@@ -213,33 +221,34 @@ OptionalInt Parser::ident_val() { // ident value ÀÐ¾î¿À±â
 }
 
 int Parser::add_op() {
-	if (!isToken(ADD_OP)) { throw std::exception(); }//ÄÚµå ¿À·ù - ÄÚµå È®ÀÎÇÏ±â
+	if (!isToken(ADD_OP)) { throw std::exception(); }//ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ - ï¿½Úµï¿½ È®ï¿½ï¿½ï¿½Ï±ï¿½
 
 	printToken();
 	opCountPerStatement += 1;
-	int value = getToken() == "-"; //  +, - ±¸ºÐ°¡´ÉÇÑ ¸®ÅÏ°ª
+	int value = getToken() == "-"; //  +, - ï¿½ï¿½ï¿½Ð°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï°ï¿½
 	nextToken();
 	if (hasError()) {
-		return 0;//Null // ¿À·ù ¹ß»ý ½Ã - StatementÀÇ µ¥ÀÌÅÍ UnknownÃ³¸®
+		return 0;//Null // ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ - Statementï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ UnknownÃ³ï¿½ï¿½
 	}
 	return value;
 }
 
 int Parser::mult_op() {
-	if (!isToken(MULT_OP)) { throw std::exception(); } //ÄÚµå ¿À·ù - ÄÚµå È®ÀÎÇÏ±â
+	if (!isToken(MULT_OP)) { throw std::exception(); } //ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ - ï¿½Úµï¿½ È®ï¿½ï¿½ï¿½Ï±ï¿½
 
 	printToken();
 	opCountPerStatement += 1;
 	int value = (getToken() == "/");
 	nextToken();
 
-	if (hasError()) return 0; //Null // ¿À·ù ¹ß»ý ½Ã - StatementÀÇ µ¥ÀÌÅÍ UnknownÃ³¸®
+	if (hasError()) return 0; //Null // ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ - Statementï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ UnknownÃ³ï¿½ï¿½
 
 	return value;
 }
 
 OptionalInt Parser::const_val(){
-	if (!isToken(CONST)) { throw std::exception(); } // ÄÚµå ¿À·ù - ÄÚµå È®ÀÎ ÇÏ±â
+	if (!isToken(CONST)) { throw std::exception(); } // ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ - ï¿½Úµï¿½ È®ï¿½ï¿½ ï¿½Ï±ï¿½
+	
 	int data;
 	std::stringstream ss(getToken());
 	printToken();
@@ -247,14 +256,14 @@ OptionalInt Parser::const_val(){
 	ss >> data;
 	nextToken();
 	
-	if (hasError()) { // ¿À·ù ¹ß»ý ½Ã - StatementÀÇ µ¥ÀÌÅÍ UnknownÃ³¸®
+	if (hasError()) { // ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½ - Statementï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ UnknownÃ³ï¿½ï¿½
 		return OptionalInt::GetUnknown();
 	}
 
 	return OptionalInt(data);
 }
 
-//TOKEN ÇÔ¼ö Á¾·á
+//TOKEN ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 
 
@@ -302,14 +311,20 @@ void Parser::printWarningAndErrorList() {
 		for (auto it : warningList) {
 			cout << "[WARNING] : ";
 			switch (it) {
-			case MULTIPLE_OP:
-				std::cout<< "ÀÌÇ× ¿¬»êÀÚ°¡ ÇÑ¹ø¿¡ 2°³ ÀÌ»ó »ç¿ëµÇ¾ú½À´Ï´Ù." << std::endl;
-				
+			case INVALID_OP:
+				std::cout<< "Romove given invalid operation (additional op / invalid position)" << std::endl;
 				break;
 
 			case NON_PAIR_LEFT_PAREN:
-				std::cout << "(¿¡ Â¦À» ÀÌ·ç´Â )¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù." << std::endl;
-				
+				std::cout << "(ï¿½ï¿½ Â¦ï¿½ï¿½ ï¿½Ì·ï¿½ï¿½ )ï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½." << std::endl;
+				break;
+			
+			case EQUAL_MISSING:
+				std::cout << "Can't Find = in statement" << std::endl;
+				break;
+
+			case COLON_MISSING:
+				std::cout << "Can't Find : in statement" << std::endl;
 				break;
 			}
 		}
@@ -318,10 +333,10 @@ void Parser::printWarningAndErrorList() {
 			cout << "<ERROR> : ";
 			switch (*it) {
 			case UNKNOWN_ERROR:
-				std::cout << "È®ÀÎÇÒ ¼ö ¾ø´Â ¿¡·¯°¡ ¹ß»ýÇß½À´Ï´Ù." << std::endl;
+				std::cout << "È®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½." << std::endl;
 				break;
 			case UNKNOWN_ID:
-				std::cout << "Ã³¸®ÇÒ ¼ö ¾ø´Â lexemeÀÌ ÀÔ·ÂµÇ¾ú½À´Ï´Ù" << std::endl;
+				std::cout << "Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ lexemeï¿½ï¿½ ï¿½Ô·ÂµÇ¾ï¿½ï¿½ï¿½ï¿½Ï´ï¿½" << std::endl;
 				break;
 			case BEGIN_IDENT_MISSING:
 				std::cout << "\nDEBUG : ERROR - STATEMENT NOT START WITH IDENT \n";
