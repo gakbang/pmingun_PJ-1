@@ -34,6 +34,8 @@ public:
 	bool isNull; // 선언 여부 확인하는 변수
 	bool isUnknown; // Unknown Data 확인하는 변수
 	T data;
+
+	bool isValid() { return !(isNull | isUnknown); }
 	
 	std::string GetData() {
 		if (isUnknown) return "Unknown";

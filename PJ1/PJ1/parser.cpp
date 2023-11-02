@@ -61,7 +61,7 @@ void Parser::statement() {
 		isErrorOccurred = true;
 	}
 	
-	if (!isEmpty() && isToken(EQUAL)) {
+	if (isToken(EQUAL)) {
 		printToken();
 		nextToken();
 	}
@@ -97,14 +97,10 @@ OptionalInt Parser::expression() {
 }
 
 OptionalInt Parser::term() {
-	if (!isErrorOccurred) {
-		OptionalDouble value1 = ConvertType<OptionalDouble,OptionalInt>(factor());
-		OptionalDouble value2 = factor_tail();
+	OptionalDouble value1 = ConvertType<OptionalDouble, OptionalInt>(factor());
+	OptionalDouble value2 = factor_tail();
 
-		return ConvertType<OptionalInt,OptionalDouble>(value1 * value2);
-	}
-		return OptionalInt::GetUnknown();
-
+	return ConvertType<OptionalInt, OptionalDouble>(value1 * value2);
 }
 
 OptionalInt Parser::term_tail() {
@@ -116,15 +112,9 @@ OptionalInt Parser::term_tail() {
 		if (opType) { // - 연산인 경우
 			value.data = 0 - value.data;
 		}
-		if (isErrorOccurred) {
-			return OptionalInt::GetUnknown();
-		}
 		return value;
 	}
 	else {
-		if (isErrorOccurred) {
-			return OptionalInt::GetUnknown();
-		}
 		return OptionalInt(0); // 공 스트링 (연산 없음)
 	}
 	
@@ -133,15 +123,9 @@ OptionalInt Parser::term_tail() {
 
 OptionalInt Parser::factor() {
 	if (isToken(IDENT)) {
-		if (isErrorOccurred) {
-			return OptionalInt::GetUnknown();
-		}
 		return ident_val();
 	}
 	else if (isToken(CONST)) {
-		if (isErrorOccurred) {
-			return OptionalInt::GetUnknown();
-		}
 		return const_val();
 	}
 	else if (isToken(LEFT_PAREN)) {
@@ -158,7 +142,7 @@ OptionalInt Parser::factor() {
 		else {
 			logWarning(NON_PAIR_LEFT_PAREN);
 			cout << ")";
-			isErrorOccurred = true;
+			//isErrorOccurred = true; << unknown data 띄우는 에러 아님
 		}
 	}
 	else {
@@ -182,10 +166,17 @@ OptionalDouble Parser::factor_tail() {
 		OptionalDouble value2 = factor_tail();
 		OptionalDouble value = value1.data * value2.data;
 		if (opType) { // 나누기 연산인 경우
-			value = 1.0 / value.data;
-		}
-		if (!isErrorOccurred) {
-			OptionalDouble::GetUnknown();
+			if (value.isUnknown) {
+				// Unknown값 리턴
+				return OptionalDouble::GetUnknown();
+			}
+			else if (value.data == 0) {
+				//0으로 나누는 에러
+				return OptionalDouble();
+			}
+			else {
+				value = 1.0 / value.data;
+			}
 		}
 		return value;
 	}
@@ -275,6 +266,20 @@ OptionalInt Parser::const_val(){
 	return OptionalInt(data);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Parser::printToken() {
 	std::cout << getToken();
 }
@@ -282,7 +287,7 @@ void Parser::printToken() {
 void Parser::printCountPerStatement() {
 	std::cout << "ID: " << idCountPerStatement << "; CONST:" << constCountPerStatement << "; OP: " << opCountPerStatement << "\n";
 }
-/*
+
 void Parser::printWarningAndErrorList() {
 	if (warningList.size() == 0 && errorList.size() == 0) {
 		cout << "(OK)\n";
@@ -310,7 +315,8 @@ void Parser::printWarningAndErrorList() {
 	}
 	cout << '\n';
 }
-*/
+
+
 void Parser::resetVariablesForNewStatement() {
 		idCountPerStatement = 0;
 		constCountPerStatement = 0;
