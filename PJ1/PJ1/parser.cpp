@@ -5,10 +5,11 @@
 #include <iostream>
 #include <sstream>
 
+#include "error_warning.hpp"
 #include "lexical_analyzer.hpp"	
 #include "parser.hpp"
 #include "token.hpp"
-#include "error_warning.hpp"
+
 
 void Parser::Parse() { program(); }
 void Parser::program() { statements(); cout << "\n"; debug2(); return ; }
@@ -153,7 +154,7 @@ OptionalInt Parser::factor() {
 			nextToken();
 			factor();
 		}
-		// isErrorOccurred = true;
+		
 	}
 	
 	
@@ -290,31 +291,43 @@ void Parser::printCountPerStatement() {
 
 void Parser::printWarningAndErrorList() {
 	if (warningList.size() == 0 && errorList.size() == 0) {
-		cout << "(OK)\n";
-	} else {
-		for (vector<Warnings>::iterator it = warningList.begin() ; it != warningList.end(); ++it) {
+		std::cout << "(OK)" << std::endl;
+	}
+	else {
+		for (auto it : warningList) {
 			cout << "[WARNING] : ";
-			switch(*it) {
-				case MULTIPLE_OP:
-					cout << "이항 연산자가 한 번에 2개 이상 사용되었습니다" << '\n';
-					break;
-				
-				case NON_PAIR_LEFT_PAREN:
-					cout << "(에 짝을 이루는 )를 찾을 수 없습니다" << '\n';
-					break;
+			switch (it) {
+			case MULTIPLE_OP:
+				std::cout << "이항 연산자가 한번에 2개 이상 사용되었습니다."<<std::endl;
+				//std::cout << "이항 연산자가 한 번에 2개 이상 사용되었습니다" << std::endl;
+				break;
+
+			case NON_PAIR_LEFT_PAREN:
+				std::cout << "(에 짝을 이루는 )를 찾을 수 없습니다." << std::endl;
+				//std::cout << "(에 짝을 이루는 )를 찾을 수 없습니다" << std::endl;
+				break;
 			}
 		}
-    for (vector<Errors>::iterator it = errorList.begin() ; it != errorList.end(); ++it) {
-				cout << "<ERROR> : ";
-				switch(*it) {
-					case UNKNOWN_ID:
-					cout << "처리할 수 없는 lexeme이 입력되었습니다" << '\n';
-					break;	
-				}
+
+		for (vector<Errors>::iterator it = errorList.begin(); it != errorList.end(); ++it) {
+			cout << "<ERROR> : ";
+			switch (*it) {
+			case UNKNOWN_ID:
+				//std::cout << "처리할 수 없는 lexeme이 입력되었습니다" << std::endl;
+				break;
+			}
 		}
 	}
 	cout << '\n';
 }
+
+/*
+void Parser::printWarningAndErrorList() {
+	if (warningList.size() == 0 && errorList.size() == 0) {
+		cout << "(OK)\n";
+	} 
+	
+*/
 
 
 void Parser::resetVariablesForNewStatement() {

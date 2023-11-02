@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef error_warning_h
 #define error_warning_h
 

@@ -108,6 +108,7 @@
     <ClCompile Include="pj1\parser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PJ1\error_warning.hpp" />
     <ClInclude Include="pj1\lexical_analyzer.hpp" />
     <ClInclude Include="pj1\parser.hpp" />
     <ClInclude Include="pj1\token.hpp" />

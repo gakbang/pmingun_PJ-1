@@ -16,9 +16,9 @@
 #include<iostream>
 #include<map>
 
+#include "error_warning.hpp"
 #include "token.hpp"
 #include "lexical_analyzer.hpp"
-#include "error_warning.hpp"
 
 #endif /* parser_hpp */
 
@@ -147,6 +147,8 @@ private:
 	// Error Handling
 	vector<Warnings> warningList = {};
 	vector<Errors> errorList = {};
+
+	bool hasError() { return errorList.empty(); }
 
 	int idCountPerStatement = 0;
 	int constCountPerStatement = 0;
