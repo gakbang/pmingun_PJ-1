@@ -8,23 +8,19 @@
 #include "lexical_analyzer.hpp"	
 #include "parser.hpp"
 #include "token.hpp"
+#include "error_warning.hpp"
 
 void Parser::Parse() { program(); }
-void Parser::program() { statements(); cout << "\n\n"; debug2(); return ; }
+void Parser::program() { statements(); cout << "\n"; debug2(); return ; }
 
 void Parser::statements() {
-
-
 	statement();
 	while (isToken(SEMI_COLON)){
-		std::cout << getToken() << "\n";
+		std::cout << getToken() << endl;
+
 		printCountPerStatement();
-		std::cout << (isErrorOccurred == true ? "대충 에러났네요~" : "(OK)") << '\n';
-
-		idCountPerStatement = 0;
-		constCountPerStatement = 0;
-		opCountPerStatement = 0;
-
+		printWarningAndErrorList();
+		resetVariablesForNewStatement();
 
 		nextToken();
 		statement();
@@ -32,15 +28,13 @@ void Parser::statements() {
 	if (!isEmpty()) {
 		//에러 : Token이 남아 있음
 		std::cout << "\nDEBUG : ERROR - TOKEN IS STILL LEFT\n";
-		
+
 	}
-	cout << '\n';
-		printCountPerStatement();
-		std::cout << (isErrorOccurred == true ? "대충 에러났네요~" : "(OK)") << '\n';
-		
-		idCountPerStatement = 0;
-		constCountPerStatement = 0;
-		opCountPerStatement = 0;
+	cout << endl;
+
+	printCountPerStatement();
+	printWarningAndErrorList();
+	resetVariablesForNewStatement();
 	
 	return;
 }
@@ -148,19 +142,19 @@ OptionalInt Parser::factor() {
 				nextToken();
 				return value;
 			}
+			//오류
+			// RIGHT PARENT WARNING
 			else {
-				//오류
-				// std::cout << "\nDEBUG : ERROR - RIGHT PARRENT IS MISSING\n";
-				// RIGHT PARENT WARNING
+				logWarning(NON_PAIR_LEFT_PAREN);
 				cout << ")";
 				isErrorOccurred = true;
 			}
 		}
 		else {
-		//오류
-			// std::cout << "\nDEBUG : ERROR - FACTOR \n";		
-							// MULTIPLE OPERATION WARNING
+			//오류
+			// MULTIPLE OPERATION WARNING
 			if (isToken(MULT_OP) || isToken(ADD_OP)) {
+				logWarning(MULTIPLE_OP);
 				nextToken();
 				factor();
 			}
@@ -220,8 +214,6 @@ OptionalInt Parser::ident_val() { // ident value 읽어오기
 
 			iter->second.isNull = false; //Identifier 선언
 			iter->second.isUnknown = true; //Identifier 선언
-
-
 
 		}
 		nextToken();
@@ -287,7 +279,45 @@ void Parser::printCountPerStatement() {
 }
 
 void Parser::printWarningAndErrorList() {
-	if (warningList.size() > 0) {
-		
+	if (warningList.size() == 0 && errorList.size() == 0) {
+		cout << "(OK)\n";
+	} else {
+		for (vector<Warnings>::iterator it = warningList.begin() ; it != warningList.end(); ++it) {
+			cout << "[WARNING] : ";
+			switch(*it) {
+				case MULTIPLE_OP:
+					cout << "이항 연산자가 한 번에 2개 이상 사용되었습니다" << '\n';
+					break;
+				
+				case NON_PAIR_LEFT_PAREN:
+					cout << "(에 짝을 이루는 )를 찾을 수 없습니다" << '\n';
+					break;
+			}
+		}
+    for (vector<Errors>::iterator it = errorList.begin() ; it != errorList.end(); ++it) {
+				cout << "<ERROR> : ";
+				switch(*it) {
+					case UNKNOWN_ID:
+					cout << "처리할 수 없는 lexeme이 입력되었습니다" << '\n';
+					break;	
+				}
+		}
 	}
+	cout << '\n';
+}
+
+void Parser::resetVariablesForNewStatement() {
+		idCountPerStatement = 0;
+		constCountPerStatement = 0;
+		opCountPerStatement = 0;
+		warningList.clear();
+		errorList.clear();
+}
+
+void Parser::logError(Errors error) {
+	errorList.push_back(error);
+}
+
+void Parser:: logWarning(Warnings warning){
+	warningList.push_back(warning);
 }

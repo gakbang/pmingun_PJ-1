@@ -18,6 +18,7 @@
 
 #include "token.hpp"
 #include "lexical_analyzer.hpp"
+#include "error_warning.hpp"
 
 #endif /* parser_hpp */
 
@@ -141,8 +142,8 @@ private:
 	}
 
 	// Error Handling
-	vector<string> warningList = {};
-	vector<string> errorList = {};
+	vector<Warnings> warningList = {};
+	vector<Errors> errorList = {};
 
 	int idCountPerStatement = 0;
 	int constCountPerStatement = 0;
@@ -173,6 +174,8 @@ private:
 
 	// Error Handling Function
 	void resetVariablesForNewStatement();
+	void logError(Errors);
+	void logWarning(Warnings);
 
 
 
