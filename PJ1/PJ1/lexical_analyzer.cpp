@@ -45,18 +45,7 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
     string line;
     char c;
     
-    while (true)
-    {
-        inputFile.get(c);
-        if (inputFile.fail()) {
-            if (!line.empty()) {
-                lexicalResult.push_back(make_tuple(analyzeString(line), line));
-                line.clear();
-                lexicalResult.push_back(make_tuple(END_OF_FILE, ""));
-            }
-            break;
-        }
-        
+    while (inputFile.get(c)){
         // white space에 대한 처리
         if (c <= 32) {
             if (!line.empty()) {
@@ -113,6 +102,15 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
             }
         }
     }
+    if (!line.empty()) {
+        lexicalResult.push_back(make_tuple(analyzeString(line), line));
+        line.clear();
+    }
+    lexicalResult.push_back(make_tuple(END_OF_FILE, ""));
+    // DEBUG : Lexical Result 출력하기
+    // for (vector<tuple<Tokens, string>>::iterator it = lexicalResult.begin() ; it != lexicalResult.end(); ++it) {
+	// 			cout << get<0>(*it) << " " <<get<1>(*it) << '\n';
+	// 	}
     
     LexicalAnalyzer::_lexResult = lexicalResult;
 }

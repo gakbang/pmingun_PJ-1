@@ -18,6 +18,7 @@
 
 #include "token.hpp"
 #include "lexical_analyzer.hpp"
+#include "error_warning.hpp"
 
 #endif /* parser_hpp */
 
@@ -90,7 +91,8 @@ public:
 	static OptionalInt GetUnknown() { return OptionalInt(true); }
 
 	OptionalInt() : OptionalData() {} //Null Data
-	OptionalInt(int data) : OptionalData(data) {}
+	OptionalInt(int data) : OptionalData(data) {
+	}
 	
 
 	OptionalInt& operator=(const OptionalInt& o) {
@@ -140,6 +142,10 @@ private:
 		return token == std::get<0>(_tokenList[_index]); 
 	}
 
+	// Error Handling
+	vector<Warnings> warningList = {};
+	vector<Errors> errorList = {};
+
 	int idCountPerStatement = 0;
 	int constCountPerStatement = 0;
 	int opCountPerStatement = 0;
@@ -162,8 +168,15 @@ private:
 	int mult_op();
 	OptionalInt const_val();
 
+	// Log Function
 	void printToken();
 	void printCountPerStatement();
+	void printWarningAndErrorList();
+
+	// Error Handling Function
+	void resetVariablesForNewStatement();
+	void logError(Errors);
+	void logWarning(Warnings);
 
 
 

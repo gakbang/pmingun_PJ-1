@@ -1,3 +1,2 @@
-data1 := abc;
-data2 := data1 + abc;
-data3 := (data2+data3) * fdsa
+data1:=3;
+data2 := 2
