@@ -5,6 +5,8 @@
 
 typedef enum {
     UNKNOWN_ID,
+    BEGIN_IDENT_MISSING,
+    TOKEN_LEFT
 } Errors;
 
 typedef enum {

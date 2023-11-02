@@ -12,29 +12,35 @@
 
 
 void Parser::Parse() { program(); }
+
+//TOKEN 함수
+
 void Parser::program() { resetVariablesForNewStatement(); statements(); cout << "\n"; debug2(); return; }
 
 void Parser::statements() {
-	statement();
-	while (isToken(SEMI_COLON)){
-		std::cout << getToken() << endl;
-		printCountPerStatement();
-		printWarningAndErrorList();
-		resetVariablesForNewStatement();
 
-		nextToken();
-		statement();
-	}
+	statement();//다음 STATEMENT
+
+	while (isToken(SEMI_COLON)){
+		std::cout << getToken() << endl; // SEMICOLON 출력
+		
+		printStatementLog();// ERROR, WARNING, COUNT 출력후 리셋
+
+		nextToken(); // SEMICOLON 제거
+
+		
+		statement();//다음 STATEMENT
+	}// 반복문 종료
+
+
 	if (!isEmpty()) {
 		//에러 : Token이 남아 있음
 		std::cout << "\nDEBUG : ERROR - TOKEN IS STILL LEFT\n";
-
 	}
+
 	cout << endl;
 
-	printCountPerStatement();
-	printWarningAndErrorList();
-	resetVariablesForNewStatement();
+	printStatementLog();// ERROR, WARNING, COUNT 출력 후 리셋
 	
 	return;
 }
@@ -42,13 +48,10 @@ void Parser::statement() {
 	
 	std::string id;
 
-	if (isToken(IDENT)) {
-		 id = ident();
-	}
+	if (isToken(IDENT)) { id = ident(); }
 	else {
-		//에러 처리 함수
-		//에러 : STATEMENT가 IDENT로 시작하지 않음
-		std::cout << "\nDEBUG : ERROR - STATEMENT NOT START WITH IDENT \n";
+		ManageInvalidInput(BEGIN_IDENT_MISSING);
+		id = "";
 	}
 
 	if (isToken(COLON)) {
@@ -58,7 +61,6 @@ void Parser::statement() {
 	else {
 		//에러 : STATEMENT에 ASSIGNMENT_OP의 :가 없음
 		std::cout << "\nDEBUG : ERROR - COLON : IS MISSING\n";		
-		
 	}
 	
 	if (isToken(EQUAL)) {
@@ -72,20 +74,12 @@ void Parser::statement() {
 	}
 	
 	OptionalInt value = expression();
-
-	if (hasError()) {
-		//Error 발생한 Statement, Error 출력 후 넘어가기
-
-		
-		_symbolTable.find(id)->second = OptionalInt::GetUnknown();
-	}
-	else {
-		_symbolTable.find(id)->second = value;
-	}
-	// 대입문
-	// symbolTablep[identVal] = value;
-
-
+	// Error 존재 여부 확인 후 대입문 실행
+	if (id.empty()) return;
+	if (hasError()) {_symbolTable.find(id)->second = OptionalInt::GetUnknown();	}
+	else {_symbolTable.find(id)->second = value;}
+	// 대입문 실행 완료
+	
 	return;
 }
 
@@ -99,8 +93,6 @@ OptionalInt Parser::expression() {
 OptionalInt Parser::term() {
 	OptionalDouble value1 = ConvertType<OptionalDouble, OptionalInt>(factor());
 	OptionalDouble value2 = factor_tail();
-
-	
 
 	return ConvertType<OptionalInt, OptionalDouble>(value1 * value2);
 }
@@ -271,6 +263,38 @@ OptionalInt Parser::const_val(){
 	return OptionalInt(data);
 }
 
+//TOKEN 함수 종료
+
+
+
+//Error Manage Function
+
+
+void Parser::ManageInvalidInput(Tokens token) {
+
+}
+
+void Parser::ManageInvalidInput(Warnings warning) {
+	logWarning(warning);
+	nextToken();
+}
+
+
+void Parser::ManageInvalidInput(Errors error) {
+	printToken();
+	logError(error);
+	nextToken();
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -319,19 +343,14 @@ void Parser::printWarningAndErrorList() {
 			case UNKNOWN_ID:
 				std::cout << "처리할 수 없는 lexeme이 입력되었습니다" << std::endl;
 				break;
+			case BEGIN_IDENT_MISSING:
+				std::cout << "\nDEBUG : ERROR - STATEMENT NOT START WITH IDENT \n";
+				break;
 			}
 		}
 	}
 	cout << '\n';
 }
-
-/*
-void Parser::printWarningAndErrorList() {
-	if (warningList.size() == 0 && errorList.size() == 0) {
-		cout << "(OK)\n";
-	} 
-	
-*/
 
 
 void Parser::resetVariablesForNewStatement() {

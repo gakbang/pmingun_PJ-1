@@ -173,6 +173,7 @@ private:
 	OptionalInt const_val();
 
 	// Log Function
+	void printStatementLog() { printCountPerStatement(); printWarningAndErrorList(); resetVariablesForNewStatement(); }
 	void printToken();
 	void printCountPerStatement();
 	void printWarningAndErrorList();
@@ -181,6 +182,12 @@ private:
 	void resetVariablesForNewStatement();
 	void logError(Errors);
 	void logWarning(Warnings);
+
+	//Error Manage Function
+	void ManageInvalidInput();
+	void ManageInvalidInput(Tokens); //현재 Token을 파라미터로 전달, 다음 토큰에 따라 오류 처리
+	void ManageInvalidInput(Errors); //Error / Warning Log를 전달 오류 처리
+	void ManageInvalidInput(Warnings); //Error / Warning Log를 전달 오류 처리
 
 
 
