@@ -177,7 +177,7 @@ OptionalDouble Parser::factor_tail() {
 			else if (value.data == 0) {
 				// division by 0  - logic error
 				// NEED CODE FOR LOGIC ERROR
-				return OptionalDouble();
+				return OptionalDouble::GetUnknown();
 			}
 			else {
 				value = 1.0 / value.data;
