@@ -1,4 +1,4 @@
-﻿//
+//
 //
 //  parser.hpp
 //  PJ1
@@ -46,12 +46,14 @@ public:
 };
 
 template <class T1, class T2>
-T1 ConvertType(T2 t) {
+T1 ConvertType(T2& t) {
 	static_assert(std::is_base_of<OptionalData<typename T1::data_type>, T1>::value, "OptionalData");
 	static_assert(std::is_base_of<OptionalData<typename T2::data_type>, T2>::value, "OptionalData");
 	T1 value = T1();
+	value.isNull = t.isNull;
 	value.isUnknown = t.isUnknown;
 	value.data = t.data;
+
 	return value;
 }
 
@@ -141,6 +143,7 @@ private:
 
 	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKEN의 string값 가져오기
 	void nextToken() { _index++; return; }
+    void moveNextAndCheckValid() {nextToken(); if(isToken(UNKNOWN)){logWarning(UNKNOWN_ID); nextToken();} }
 	bool isEmpty() { return std::get<0>(_tokenList[_index]) == END_OF_FILE; }
 	bool isToken(Tokens token) { 
 		return token == std::get<0>(_tokenList[_index]); 

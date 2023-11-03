@@ -51,5 +51,6 @@ int main(int argc, char *argv[]) {
     // 파일 닫기 (자동으로 닫히지만 명시적으로 닫아주는 것이 좋습니다)
     inputFile.close();
 
+    
     return 0;
 }

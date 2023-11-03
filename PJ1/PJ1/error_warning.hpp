@@ -5,13 +5,14 @@
 
 typedef enum {
     UNKNOWN_ERROR,
-    UNKNOWN_ID,
     BEGIN_IDENT_MISSING,
-    TOKEN_LEFT,    
+    TOKEN_LEFT,   
+    ZERO_DIVISER,
 } Errors;
 
 typedef enum {
     INVALID_OP,
+    UNKNOWN_ID,
     NON_PAIR_LEFT_PAREN,
     EQUAL_MISSING,
     COLON_MISSING,
