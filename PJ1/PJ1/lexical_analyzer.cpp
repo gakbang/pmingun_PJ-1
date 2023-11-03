@@ -96,7 +96,6 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
                     lexicalResult.push_back(make_tuple(EQUAL, "="));
                     break;
                 default:
-                    // cout << "\nDEBUG - UNKNOWN SYMBOL IS ENTERED\n" ;
                     lexicalResult.push_back(make_tuple(UNKNOWN, string(1, c)));
                     break;
             }

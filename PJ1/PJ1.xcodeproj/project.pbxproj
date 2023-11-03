@@ -33,6 +33,7 @@
 		3430B1382AEF761A00D18B3E /* parser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = parser.hpp; sourceTree = "<group>"; };
 		3430B13A2AEF77F800D18B3E /* token.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = token.hpp; sourceTree = "<group>"; };
 		3430B13B2AEF7DD700D18B3E /* input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
+		34CE3E3E2AF40A3D006339F0 /* error_warning.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = error_warning.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				3430B12D2AEF756C00D18B3E /* main.cpp */,
+				34CE3E3E2AF40A3D006339F0 /* error_warning.hpp */,
 				3430B1342AEF760D00D18B3E /* lexical_analyzer.cpp */,
 				3430B1372AEF761A00D18B3E /* parser.cpp */,
 				3430B1382AEF761A00D18B3E /* parser.hpp */,
