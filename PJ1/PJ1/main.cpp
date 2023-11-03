@@ -24,7 +24,8 @@ int main(int argc, char *argv[]) {
     //const char *filename = argv[1];
 
     const char* filename = "input.txt";
-    
+
+
     // 입력 파일 스트림 생성
     ifstream inputFile(filename);
     
