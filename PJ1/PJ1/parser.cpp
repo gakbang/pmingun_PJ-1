@@ -20,30 +20,21 @@ void Parser::program() { resetVariablesForNewStatement(); statements(); cout << 
 void Parser::statements() {
     
     statement();//     STATEMENT
-    if (isToken(RIGHT_PAREN)) {
-        logError(PAREN_PAIR_MISSING);
-        moveNextAndCheckValid();
-    }    
+        
     while (isToken(SEMI_COLON)) {
         std::cout << getToken() << endl; // SEMICOLON
         printStatementLog();// ERROR, WARNING, COUNT message
         moveNextAndCheckValid();        // SEMICOLON
         
         statement();        //     STATEMENT
-    }
-    
-    while (!isToken(END_OF_FILE)) {
-        if (isToken(RIGHT_PAREN)) {
-            logError(PAREN_PAIR_MISSING);
-            moveNextAndCheckValid();
-            continue;
-        }
-        else {
-            logError(TOKEN_LEFT);
-            break;
-        }
         
     }
+
+    if (!isToken(END_OF_FILE)) {
+        logError(TOKEN_LEFT);
+       
+    }
+    
     
     cout << endl;
     printStatementLog();// ERROR, WARNING, COUNT message
@@ -54,6 +45,8 @@ void Parser::statements() {
 void Parser::statement() {
     
     std::string id;
+
+    
     
     if (isToken(IDENT)) {
         id = ident();
@@ -69,7 +62,7 @@ void Parser::statement() {
         moveNextAndCheckValid();
     }
     else {
-        //     : STATEMENT   ASSIGNMENT_OP   :
+        // : STATEMENT   ASSIGNMENT_OP   :
         logWarning(COLON_MISSING);
         cout << ":";
     }
@@ -79,7 +72,7 @@ void Parser::statement() {
         moveNextAndCheckValid();
     }
     else {
-        //     : STATEMENT   ASSIGNMENT_OP   =
+        // : STATEMENT   ASSIGNMENT_OP   =
         logWarning(EQUAL_MISSING);
         cout << "=";
         // moveNextAndCheckValid();
@@ -90,11 +83,23 @@ void Parser::statement() {
     if (hasError()) { _symbolTable.find(id)->second = OptionalInt::GetUnknown(); }
     else { _symbolTable.find(id)->second = value; }
     // assignment executed
+
+    while (!isToken(END_OF_FILE) && !isToken(SEMI_COLON)) {
+        if (isToken(RIGHT_PAREN)) {
+            logError(PAREN_PAIR_MISSING);
+        }
+        else {
+            logError(UNKNOWN_ERROR);
+        }
+        moveNextAndCheckValid();
+    }
     
+
     return;
 }
 
 OptionalInt Parser::expression() {
+    
     OptionalInt value1 = term();
     OptionalInt value2 = term_tail();
     return (value1 + value2);
@@ -356,6 +361,9 @@ void Parser::printWarningAndErrorList() {
                     break;
                 case BEGIN_IDENT_MISSING:
                     std::cout << "THE STATEMENT DOES NOT BEGIN WITH IDENTIFIER" << std::endl;
+                    break;
+                case WRONG_STATEMENT:
+                    std::cout << "STATEMENT HAS WRONG STRUCTURE" << std::endl;
                     break;
                 case TOKEN_LEFT:
                     std::cout << "TOKEN IS STILL LEFT IN STREAM" << std::endl;
