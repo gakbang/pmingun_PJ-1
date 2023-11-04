@@ -8,6 +8,7 @@ typedef enum {
     BEGIN_IDENT_MISSING,
     TOKEN_LEFT,   
     ZERO_DIVISER,
+    PAREN_PAIR_MISSING
 } Errors;
 
 typedef enum {

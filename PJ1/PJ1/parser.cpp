@@ -20,7 +20,10 @@ void Parser::program() { resetVariablesForNewStatement(); statements(); cout << 
 void Parser::statements() {
     
     statement();//     STATEMENT
-    
+    if (isToken(RIGHT_PAREN)) {
+        logError(PAREN_PAIR_MISSING);
+        moveNextAndCheckValid();
+    }    
     while (isToken(SEMI_COLON)) {
         std::cout << getToken() << endl; // SEMICOLON
         printStatementLog();// ERROR, WARNING, COUNT message
@@ -29,8 +32,17 @@ void Parser::statements() {
         statement();        //     STATEMENT
     }
     
-    if (!isToken(END_OF_FILE)) {
-        logError(TOKEN_LEFT);
+    while (!isToken(END_OF_FILE)) {
+        if (isToken(RIGHT_PAREN)) {
+            logError(PAREN_PAIR_MISSING);
+            moveNextAndCheckValid();
+            continue;
+        }
+        else {
+            logError(TOKEN_LEFT);
+            break;
+        }
+        
     }
     
     cout << endl;
@@ -144,6 +156,11 @@ OptionalInt Parser::factor() {
             return factor();
         }
         else {
+            if (isToken(RIGHT_PAREN)) {
+                logError(PAREN_PAIR_MISSING);
+                moveNextAndCheckValid();
+                return factor();
+            }
             logError(UNKNOWN_ERROR);
             moveNextAndCheckValid();
             return factor();
@@ -172,6 +189,7 @@ OptionalDouble Parser::factor_tail() {
         }
         return value;
     }
+    
     else {
         return OptionalDouble(1.0); // return default value
     }
@@ -345,6 +363,8 @@ void Parser::printWarningAndErrorList() {
                 case ZERO_DIVISER:
                     std::cout << "VALUE CAN'T BE DIVIDED BY ZERO" << std::endl;
                     break;
+                case PAREN_PAIR_MISSING:
+                    std::cout << "RIGHT PARENT DOES NOT HAVE PAIR." << std::endl;
             }
         }
     }
