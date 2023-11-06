@@ -178,6 +178,11 @@ OptionalInt Parser::factor() {
             moveNextAndCheckValid();
             return factor();
         }
+        else {
+            logError(UNKNOWN_ERROR);
+            moveNextAndCheckValid();
+            return factor();
+        }
     }
 }
 
