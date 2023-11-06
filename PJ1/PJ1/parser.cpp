@@ -146,10 +146,12 @@ OptionalInt Parser::factor() {
             if (parenCountPerStatement > 0) {
                 parenCountPerStatement--;
                 printToken();
-                moveNextAndCheckValid();
             }
-            
-           
+            else {
+                logError(PAREN_PAIR_MISSING);
+                printToken();
+            }
+            moveNextAndCheckValid();
         }
 
         return value;
@@ -221,22 +223,20 @@ std::string Parser::ident() { // STATEMENT begin identifier - check declarations
 OptionalInt Parser::ident_val() { // ident value  о
     OptionalInt value;
     if (!isToken(IDENT)) { throw std::exception(); } //CODE ERROR : >>CHECK CODE<<
-    {
-        printToken();
-        idCountPerStatement += 1;
-        
-        auto iter = _symbolTable.find(getToken());
-        if (iter->second.isNull) {
-            // Error :
-            iter->second.isNull = false; //Identifier
-            iter->second.isUnknown = true; //Identifier
-            
-        }
-        moveNextAndCheckValid();
-        return iter->second;
-        // value = symbol table[ident]
-        //return value;
+    printToken();
+    idCountPerStatement += 1;
+
+    auto iter = _symbolTable.find(getToken());
+    if (iter->second.isNull) {
+        // Error :
+        iter->second.isNull = false; //Identifier
+        iter->second.isUnknown = true; //Identifier
+
     }
+    moveNextAndCheckValid();
+    return iter->second;
+    // value = symbol table[ident]
+    //return value;
     
     if (hasError()) {
         
