@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     Parser parser(lexicalAnalyzer.getAnalyzedResult(), lexicalAnalyzer.getSymbolTable());
    
 
-
+    
 
     // Parser를 통해 구문 분석을 진행
     parser.Parse();

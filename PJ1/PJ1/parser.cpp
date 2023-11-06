@@ -54,9 +54,17 @@ void Parser::statement() {
     
     if (isToken(IDENT)) { id = ident(); }
     else {
-        printToken();
-        logError(BEGIN_IDENT_MISSING);
-        moveNextAndCheckValid();
+        
+        
+        if (isToken(COLON) || isToken(EQUAL)) {
+            logError(BEGIN_IDENT_MISSING);  
+        }
+        else {
+            printToken();
+            logError(BEGIN_IDENT_MISSING);
+            moveNextAndCheckValid();
+        }
+        
     }
     if (isToken(COLON)) {
         printToken();
@@ -375,10 +383,11 @@ void Parser::printWarningAndErrorList() {
 
                 case EOF_SEMI_COLON:
                     std::cout << "LAST STATEMENT DO NOT REQUIRE EOF" << std::endl;
+                    break;
             }
         }
         
-        for (auto it : warningList) {
+        for (auto it : errorList) {
             cout << "<ERROR> : ";
             switch (get<0>(it)) {
                 
