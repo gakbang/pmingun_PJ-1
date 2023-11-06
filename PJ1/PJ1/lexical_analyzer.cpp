@@ -52,6 +52,8 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
     while (inputFile.get(c)) {
         // 공백 문자가 들어온 경우에 대한 처리
         if (c <= 32) {
+            // 공백 문자를 읽었을 때, 앞서 모으고 있던 line이 있다면
+            // CONST/IDENT/UNKNOWN으로 분류 작업을 한 뒤 line을 비우고 넘어감
             if (!line.empty()) {
                 lexicalResult.push_back(make_tuple(analyzeString(line), line));
                 line.clear();
@@ -65,11 +67,12 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
 
         // 기호에 대한 처리
         else {
+            // 기호를 읽었을 때, 앞서 모으고 있던 line이 있다면
+            // CONST/IDENT/UNKNOWN으로 분류 작업을 한 뒤 line을 비우고 기호에 대한 처리를 이어감
             if (!line.empty()) {
                 lexicalResult.push_back(make_tuple(analyzeString(line), line));
+                line.clear();
             }
-
-            line.clear();
             
             switch (c) {
                 case '(':
@@ -105,22 +108,26 @@ void LexicalAnalyzer::analyzeInputFile(ifstream& inputFile) {
             }
         }
     }
+    
+    // 모든 글자를 읽은 뒤 마지막으로 남은 line에 있는 문자열에 대한 분류를 진행
     if (!line.empty()) {
         lexicalResult.push_back(make_tuple(analyzeString(line), line));
         line.clear();
     }
-    lexicalResult.push_back(make_tuple(END_OF_FILE, ""));
-    // DEBUG : Lexical Result 출력하기
-    // for (vector<tuple<Tokens, string>>::iterator it = lexicalResult.begin() ; it != lexicalResult.end(); ++it) {
-	// 			cout << get<0>(*it) << " " <<get<1>(*it) << '\n';
-	// 	}
     
+    // END_OF_FILE 토큰을 가장 마지막에 삽입
+    lexicalResult.push_back(make_tuple(END_OF_FILE, ""));
+    
+    // 분석 결과를 Lexical Analyzer 객체의 _lexResult 변수에 저장
     LexicalAnalyzer::_lexResult = lexicalResult;
 }
 
+// 현재 객체의 Analyze Result를 반환
 vector<tuple<Tokens, string>> LexicalAnalyzer::getAnalyzedResult() {
     return _lexResult;
 }
+
+// 현재 객체의 Symbol Table를 반환
 vector<string> LexicalAnalyzer::getSymbolTable() {
     return _symbolTable;
 }

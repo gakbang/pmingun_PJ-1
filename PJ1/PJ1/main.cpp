@@ -20,12 +20,9 @@ int main(int argc, char *argv[]) {
     
     vector<tuple<int, string>> symbolTable;
 
-    //const char *filename = argv[1];
-
-    const char* filename = "input.txt";
-
-
     // 파일명은 argv[1]을 통해 전달됨
+    const char *filename = argv[1];
+    
     // 입력 파일 스트림 생성
     ifstream inputFile(filename);
     if (!inputFile) {
