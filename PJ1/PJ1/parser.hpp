@@ -159,6 +159,8 @@ private:
 	int constCountPerStatement = 0;
 	int opCountPerStatement = 0;
 
+	int parenCountPerStatement = 0;
+
 
 	void program();
 	void statements();
