@@ -31,6 +31,7 @@ void Parser::statements() {
     }
 
     if (!isToken(END_OF_FILE)) {
+        cout << getToken() << endl;
         logError(TOKEN_LEFT);
        
     }
@@ -94,6 +95,7 @@ void Parser::statement() {
     }
 
     if (id.empty()) return; // check for begin identifier error
+    _symbolTable.find(id)->second.isNull = false;
     if (hasError()) { _symbolTable.find(id)->second = OptionalInt::GetUnknown(); }
     else { _symbolTable.find(id)->second = value; }
     // assignment executed
@@ -131,6 +133,7 @@ OptionalInt Parser::term_tail() {
 
 OptionalInt Parser::factor() {
     if (isToken(IDENT)) {
+
         return ident_val();
     }
     else if (isToken(CONST)) {
@@ -176,7 +179,6 @@ OptionalInt Parser::factor() {
             moveNextAndCheckValid();
             return OptionalInt::GetUnknown();
         }
-        // MULTIPLE OPERATION WARNING
         if (isToken(MULT_OP) || isToken(ADD_OP)) {
             logWarning(INVALID_OP);
             moveNextAndCheckValid();
@@ -223,7 +225,7 @@ OptionalDouble Parser::factor_tail() {
 std::string Parser::ident() { // STATEMENT begin identifier - check declarations
     if (!isToken(IDENT)) { throw std::exception(); } //CODE ERROR : >>CHECK CODE<<
     std::string value = getToken();
-    _symbolTable.find(getToken())->second.isNull = false; //Identifier
+    //_symbolTable.find(getToken())->second.isNull = false; //Identifier
     //_symbolTable.find(getToken())->second.data = 0; //Identifier
     printToken();
     idCountPerStatement += 1;
@@ -238,10 +240,13 @@ OptionalInt Parser::ident_val() { // ident value  о
     idCountPerStatement += 1;
 
     auto iter = _symbolTable.find(getToken());
+    
     if (iter->second.isNull) {
-        // Error :
+        logError(NOT_DECLARED, getToken());
         iter->second.isNull = false; //Identifier
         iter->second.isUnknown = true; //Identifier
+        moveNextAndCheckValid();
+        return OptionalInt::GetUnknown();
 
     }
     moveNextAndCheckValid();
@@ -349,7 +354,7 @@ void Parser::printWarningAndErrorList() {
             cout << "[WARNING] : ";
             switch (get<0>(it)) {
                 case INVALID_OP:
-                    std::cout << "Romove given invalid operation (additional op / invalid position)" << std::endl;
+                    std::cout << "Remove given invalid operation (additional op / invalid position)" << std::endl;
                     break;
                     
                 case UNKNOWN_ID:
@@ -376,6 +381,7 @@ void Parser::printWarningAndErrorList() {
         for (auto it : warningList) {
             cout << "<ERROR> : ";
             switch (get<0>(it)) {
+                
                 case UNKNOWN_ERROR:
                     std::cout << "UNKNOWN ERROR IS DETECTED" << std::endl;
                     break;
@@ -386,7 +392,7 @@ void Parser::printWarningAndErrorList() {
                     std::cout << "STATEMENT HAS WRONG STRUCTURE" << std::endl;
                     break;
                 case NOT_DECLARED:
-                    std::cout << "" << std::endl;
+                    std::cout << "THE INDENTIFIER " << get<1>(it)<< " IS NOT DECLARED." << std::endl;
                     break;
                 case TOKEN_LEFT:
                     std::cout << "TOKEN IS STILL LEFT IN STREAM" << std::endl;

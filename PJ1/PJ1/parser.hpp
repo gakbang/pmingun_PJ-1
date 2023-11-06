@@ -223,7 +223,6 @@ public:
 		_parsingStack.push(PROGRAM);
 		for (auto symbol : symbolTable) {
 			_symbolTable.insert(pair<std::string, OptionalInt>(symbol, OptionalInt()));
-			
 		}
 	}
 	void Parse();

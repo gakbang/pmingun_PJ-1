@@ -1,3 +1,1 @@
-garbage + garbage ;
-= o*o*oo*o)oo*o))**o) ;
-:32:=ru;9:=3;a=3
+a = 3
