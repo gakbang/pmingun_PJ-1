@@ -82,6 +82,7 @@ void Parser::statement() {
     
 
     while (!isToken(END_OF_FILE) && !isToken(SEMI_COLON)) {
+
         expression();
         value = OptionalInt::GetUnknown();
     }
@@ -346,7 +347,7 @@ void Parser::printWarningAndErrorList() {
     else {
         for (auto it : warningList) {
             cout << "[WARNING] : ";
-            switch (it) {
+            switch (get<0>(it)) {
                 case INVALID_OP:
                     std::cout << "Romove given invalid operation (additional op / invalid position)" << std::endl;
                     break;
@@ -372,9 +373,9 @@ void Parser::printWarningAndErrorList() {
             }
         }
         
-        for (vector<Errors>::iterator it = errorList.begin(); it != errorList.end(); ++it) {
+        for (auto it : warningList) {
             cout << "<ERROR> : ";
-            switch (*it) {
+            switch (get<0>(it)) {
                 case UNKNOWN_ERROR:
                     std::cout << "UNKNOWN ERROR IS DETECTED" << std::endl;
                     break;
@@ -383,6 +384,9 @@ void Parser::printWarningAndErrorList() {
                     break;
                 case WRONG_STATEMENT:
                     std::cout << "STATEMENT HAS WRONG STRUCTURE" << std::endl;
+                    break;
+                case NOT_DECLARED:
+                    std::cout << "" << std::endl;
                     break;
                 case TOKEN_LEFT:
                     std::cout << "TOKEN IS STILL LEFT IN STREAM" << std::endl;
@@ -412,10 +416,14 @@ void Parser::resetVariablesForNewStatement() {
     errorList.clear();
 }
 
-void Parser::logError(Errors error) {
-    errorList.push_back(error);
+void Parser::logError(Errors error) { 
+    errorList.push_back(std::make_tuple(error, std::string()));
+}
+
+void Parser::logError(Errors error, string message) {
+    errorList.push_back(std::make_tuple(error, message));
 }
 
 void Parser::logWarning(Warnings warning) {
-    warningList.push_back(warning);
+    warningList.push_back(make_tuple(warning,std::string()));
 }

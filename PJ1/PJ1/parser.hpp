@@ -149,8 +149,8 @@ private:
 	}
 
 	// Error Handling
-	vector<Warnings> warningList = {};
-	vector<Errors> errorList = {};
+	vector<std::tuple<Warnings,std::string>> warningList = {};
+	vector<std::tuple<Errors, std::string>> errorList = {};
 
 	bool hasError() { return errorList.size() != 0; }
 
@@ -186,7 +186,9 @@ private:
 	// Error Handling Function
 	void resetVariablesForNewStatement();
 	void logError(Errors);
+	void logError(Errors, string);
 	void logWarning(Warnings);
+	void logWarning(Warnings, string);
 
 	//Error Manage Function
 	void ManageInvalidInput();
