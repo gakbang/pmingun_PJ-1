@@ -46,7 +46,10 @@ void Parser::statement() {
     
     std::string id;
 
-    
+    if (isToken(END_OF_FILE)) {
+        logWarning(EOF_SEMI_COLON);
+        return;
+    }
     
     if (isToken(IDENT)) { id = ident(); }
     else {
@@ -183,7 +186,9 @@ OptionalInt Parser::factor() {
             moveNextAndCheckValid();
             return factor();
         }
+        
     }
+    
 }
 
 OptionalDouble Parser::factor_tail() {
@@ -361,6 +366,9 @@ void Parser::printWarningAndErrorList() {
                 case COLON_MISSING:
                     std::cout << "Can't Find : in statement" << std::endl;
                     break;
+
+                case EOF_SEMI_COLON:
+                    std::cout << "LAST STATEMENT DO NOT REQUIRE EOF" << std::endl;
             }
         }
         
@@ -384,8 +392,10 @@ void Parser::printWarningAndErrorList() {
                     break;
                 case PAREN_PAIR_MISSING:
                     std::cout << "RIGHT PARENT DOES NOT HAVE PAIR." << std::endl;
+                    break;
                 case ARGUMENT_MISSING:
                     std::cout << "ARGUMENT IS MISSING IN OPRATION." << std::endl;
+                    break;
             }
         }
     }

@@ -19,6 +19,7 @@ typedef enum {
     NON_PAIR_LEFT_PAREN,
     EQUAL_MISSING,
     COLON_MISSING,
+    EOF_SEMI_COLON
 } Warnings;
 
 #endif /* error_warning_h */
