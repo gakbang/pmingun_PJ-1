@@ -48,15 +48,12 @@ void Parser::statement() {
 
     
     
-    if (isToken(IDENT)) {
-        id = ident();
-    }
+    if (isToken(IDENT)) { id = ident(); }
     else {
         printToken();
         logError(BEGIN_IDENT_MISSING);
         moveNextAndCheckValid();
     }
-    
     if (isToken(COLON)) {
         printToken();
         moveNextAndCheckValid();
@@ -79,21 +76,23 @@ void Parser::statement() {
     }
     
     OptionalInt value = expression();
+    
+
+    while (!isToken(END_OF_FILE) && !isToken(SEMI_COLON)) {
+        expression();
+        value = OptionalInt::GetUnknown();
+    }
+
+    while (parenCountPerStatement > 0) {
+        logWarning(NON_PAIR_LEFT_PAREN);
+        cout << ")";
+        parenCountPerStatement--;
+    }
+
     if (id.empty()) return; // check for begin identifier error
     if (hasError()) { _symbolTable.find(id)->second = OptionalInt::GetUnknown(); }
     else { _symbolTable.find(id)->second = value; }
     // assignment executed
-
-    while (!isToken(END_OF_FILE) && !isToken(SEMI_COLON)) {
-        if (isToken(RIGHT_PAREN)) {
-            logError(PAREN_PAIR_MISSING);
-        }
-        else {
-            logError(UNKNOWN_ERROR);
-        }
-        moveNextAndCheckValid();
-    }
-    
 
     return;
 }
@@ -135,38 +134,45 @@ OptionalInt Parser::factor() {
         return v;
     }
     else if (isToken(LEFT_PAREN)) {
+        parenCountPerStatement++;
         printToken();
         moveNextAndCheckValid();
         
         OptionalInt value = expression();
+
+
         if (isToken(RIGHT_PAREN)) {
-            printToken();
-            moveNextAndCheckValid();
-            return value;
+
+            if (parenCountPerStatement > 0) {
+                parenCountPerStatement--;
+                printToken();
+                moveNextAndCheckValid();
+            }
+            
+           
         }
+
+        return value;
         //
         // RIGHT PARENT WARNING
-        else {
-            logWarning(NON_PAIR_LEFT_PAREN);
-            cout << ")";
-            return value;
-        }
+        
     }
     else {
-        //
+        if (isToken(SEMI_COLON)) {
+            logError(ARGUMENT_MISSING);
+            return OptionalInt::GetUnknown();
+        }
+        else if (isToken(RIGHT_PAREN)) {
+            logError(ARGUMENT_MISSING);
+            if (parenCountPerStatement > 0) parenCountPerStatement--;
+            else logError(PAREN_PAIR_MISSING);
+            printToken();
+            moveNextAndCheckValid();
+            return OptionalInt::GetUnknown();
+        }
         // MULTIPLE OPERATION WARNING
         if (isToken(MULT_OP) || isToken(ADD_OP)) {
             logWarning(INVALID_OP);
-            moveNextAndCheckValid();
-            return factor();
-        }
-        else {
-            if (isToken(RIGHT_PAREN)) {
-                logError(PAREN_PAIR_MISSING);
-                moveNextAndCheckValid();
-                return factor();
-            }
-            logError(UNKNOWN_ERROR);
             moveNextAndCheckValid();
             return factor();
         }
@@ -373,6 +379,8 @@ void Parser::printWarningAndErrorList() {
                     break;
                 case PAREN_PAIR_MISSING:
                     std::cout << "RIGHT PARENT DOES NOT HAVE PAIR." << std::endl;
+                case ARGUMENT_MISSING:
+                    std::cout << "ARGUMENT IS MISSING IN OPRATION." << std::endl;
             }
         }
     }
@@ -384,6 +392,7 @@ void Parser::resetVariablesForNewStatement() {
     idCountPerStatement = 0;
     constCountPerStatement = 0;
     opCountPerStatement = 0;
+    parenCountPerStatement = 0;
     warningList.clear();
     errorList.clear();
 }

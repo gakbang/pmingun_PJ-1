@@ -1,3 +1,4 @@
 operand1 := 2;
-operand2  + ((3 + operand1 ) ++++ ) 123 +++;
+operand2  +  ((3 + (operand1 + 123 );
 operand3 := operand1 + operand2
+

@@ -9,7 +9,8 @@ typedef enum {
     WRONG_STATEMENT,
     TOKEN_LEFT,   
     ZERO_DIVISER,
-    PAREN_PAIR_MISSING
+    PAREN_PAIR_MISSING,
+    ARGUMENT_MISSING
 } Errors;
 
 typedef enum {
