@@ -20,36 +20,34 @@ int main(int argc, char *argv[]) {
     
     vector<tuple<int, string>> symbolTable;
 
-    // 파일명은 argv[1]에 있습니다.
     //const char *filename = argv[1];
 
     const char* filename = "input.txt";
-    
+
+
+    // 파일명은 argv[1]을 통해 전달됨
     // 입력 파일 스트림 생성
     ifstream inputFile(filename);
-    
     if (!inputFile) {
-        cout << "파일을 열 수 없습니다: " << filename << endl;
+        cout << "[" << filename << "] 파일을 열 수 없습니다" << endl;
         return 0;
     }
     
+    // Lexical Analyzer 객체를 생성
     LexicalAnalyzer lexicalAnalyzer = LexicalAnalyzer();
 
-    // Lexical Analyzer 통해 구문 분석 진행
+    // Lexical Analyzer를 통해 토큰 분석 진행
     lexicalAnalyzer.analyzeInputFile(inputFile);
     
-    // DEBUG PRINT
-    // for (int index = 0; index < lexResult.size(); index++) {
-    //     cout << get<0>(lexResult.at(index)) << ' ' << get<1>(lexResult.at(index)) << '\n';
-    // }
-    
+    // Lexical Analyzer의 구문 분석 결과 -토큰 리스트, 심볼 테이블- 를 Parser에게 전달하며
+    // Parser 객체를 생성
     Parser parser(lexicalAnalyzer.getAnalyzedResult(), lexicalAnalyzer.getSymbolTable());
+    
+    // Parser를 통해 구문 분석을 진행
     parser.Parse();
 
-
-    // 파일 닫기 (자동으로 닫히지만 명시적으로 닫아주는 것이 좋습니다)
+    // 모든 처리가 완료된 후 파일 닫기
     inputFile.close();
-
     
     return 0;
 }
