@@ -18,8 +18,6 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
     
-    vector<tuple<int, string>> symbolTable;
-
     // 파일명은 argv[1]을 통해 전달됨
     const char *filename = argv[1];
     
