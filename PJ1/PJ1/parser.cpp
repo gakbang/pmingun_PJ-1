@@ -15,9 +15,9 @@ void Parser::Parse() { program(); }
 
 //TOKEN  function
 
-void Parser::program() { resetVariablesForNewStatement(); statements(); cout << "\n"; debug2(); return; }
+void Parser::program() { resetVariablesForNewStatement(); statements(); cout << "\n"; SymbolOutput(); return; }
 
-void Parser::statements() {
+void Parser::statements() { //STATEMENTS
     
     statement();//     STATEMENT
         
@@ -25,37 +25,32 @@ void Parser::statements() {
         std::cout << getToken() << endl; // SEMICOLON
         printStatementLog();// ERROR, WARNING, COUNT message
         moveNextAndCheckValid();        // SEMICOLON
-        
         statement();        //     STATEMENT
-        
     }
 
-    if (!isToken(END_OF_FILE)) {
+    if (!isToken(END_OF_FILE)) { // check token error
         cout << getToken() << endl;
         logError(TOKEN_LEFT);
-       
     }
     
     
     cout << endl;
+
     printStatementLog();// ERROR, WARNING, COUNT message
     
     return;
 }
 
-void Parser::statement() {
+void Parser::statement() { // STATEMENT
     
-    std::string id;
+    std::string id; //identifier
 
     if (isToken(END_OF_FILE)) {
-        logWarning(EOF_SEMI_COLON);
+        logWarning(EOF_SEMI_COLON); // last statement semicolon check
         return;
-    }
-    
+    }    
     if (isToken(IDENT)) { id = ident(); }
-    else {
-        
-        
+    else { //warning error check
         if (isToken(COLON) || isToken(EQUAL)) {
             logError(BEGIN_IDENT_MISSING);  
         }
@@ -84,26 +79,24 @@ void Parser::statement() {
         // : STATEMENT   ASSIGNMENT_OP   =
         logWarning(EQUAL_MISSING);
         cout << "=";
-        // moveNextAndCheckValid();
     }
     
     OptionalInt value = expression();
-    
 
-    while (!isToken(END_OF_FILE) && !isToken(SEMI_COLON)) {
-
+    while (!isToken(END_OF_FILE) && !isToken(SEMI_COLON)) { // check for wrong structure
         expression();
+        logError(WRONG_STATEMENT);
         value = OptionalInt::GetUnknown();
     }
 
-    while (parenCountPerStatement > 0) {
+    while (parenCountPerStatement > 0) { // parenthesis pair matching
         logWarning(NON_PAIR_LEFT_PAREN);
         cout << ")";
         parenCountPerStatement--;
     }
 
     if (id.empty()) return; // check for begin identifier error
-    _symbolTable.find(id)->second.isNull = false;
+    _symbolTable.find(id)->second.isNull = false; // identifier declaration
     if (hasError()) { _symbolTable.find(id)->second = OptionalInt::GetUnknown(); }
     else { _symbolTable.find(id)->second = value; }
     // assignment executed
@@ -111,19 +104,19 @@ void Parser::statement() {
     return;
 }
 
-OptionalInt Parser::expression() {
+OptionalInt Parser::expression() { //EXPRESSION
     
     OptionalInt value1 = term();
     OptionalInt value2 = term_tail();
     return (value1 + value2);
 }
 
-OptionalInt Parser::term() {
+OptionalInt Parser::term() { // TERM
     OptionalInt factorResult = factor();
-    OptionalDouble value1 = ConvertType<OptionalDouble, OptionalInt>(factorResult);
+    OptionalDouble value1 = ConvertType<OptionalDouble, OptionalInt>(factorResult); //casting value
     OptionalDouble value2 = factor_tail();
-    OptionalDouble multResult = value1 * value2;
-    return ConvertType<OptionalInt, OptionalDouble>(multResult);
+    OptionalDouble multResult = value1 * value2; 
+    return ConvertType<OptionalInt, OptionalDouble>(multResult); //casting value
 }
 
 OptionalInt Parser::term_tail() {
@@ -132,7 +125,7 @@ OptionalInt Parser::term_tail() {
         OptionalInt value1 = term();
         OptionalInt value2 = term_tail();
         OptionalInt value = value1 + value2;
-        if (opType) { value.data = 0 - value.data; }
+        if (opType) { value.data = 0 - value.data; } // return negative is operation is minus
         return value;
     }
     else { return OptionalInt(0); } // return default value
@@ -141,7 +134,6 @@ OptionalInt Parser::term_tail() {
 
 OptionalInt Parser::factor() {
     if (isToken(IDENT)) {
-
         return ident_val();
     }
     else if (isToken(CONST)) {
@@ -152,54 +144,45 @@ OptionalInt Parser::factor() {
         parenCountPerStatement++;
         printToken();
         moveNextAndCheckValid();
-        
         OptionalInt value = expression();
-
-
-        if (isToken(RIGHT_PAREN)) {
-
+        if (isToken(RIGHT_PAREN)) { // paren count matching
             if (parenCountPerStatement > 0) {
                 parenCountPerStatement--;
                 printToken();
             }
-            else {
+            else { // no left parethesis
                 logError(PAREN_PAIR_MISSING);
                 printToken();
             }
             moveNextAndCheckValid();
         }
-
         return value;
-        //
-        // RIGHT PARENT WARNING
-        
     }
     else {
-        if (isToken(SEMI_COLON)) {
+        //check error and warnings
+        if (isToken(SEMI_COLON)) { //statement end without argument
             logError(ARGUMENT_MISSING);
             return OptionalInt::GetUnknown();
         }
-        else if (isToken(RIGHT_PAREN)) {
-            logError(ARGUMENT_MISSING);
-            if (parenCountPerStatement > 0) parenCountPerStatement--;
-            else logError(PAREN_PAIR_MISSING);
+        else if (isToken(RIGHT_PAREN)) { 
+            logError(ARGUMENT_MISSING);//operator needs argument
+            if (parenCountPerStatement > 0) parenCountPerStatement--;// check for parenthesis
+            else logError(PAREN_PAIR_MISSING); // check for parenthesis
             printToken();
             moveNextAndCheckValid();
             return OptionalInt::GetUnknown();
         }
-        if (isToken(MULT_OP) || isToken(ADD_OP)) {
+        if (isToken(MULT_OP) || isToken(ADD_OP)) { // operator repetition
             logWarning(INVALID_OP);
             moveNextAndCheckValid();
             return factor();
         }
         else {
-            logError(UNKNOWN_ERROR);
+            logError(UNKNOWN_ERROR); //unknown
             moveNextAndCheckValid();
             return factor();
-        }
-        
-    }
-    
+        }        
+    }    
 }
 
 OptionalDouble Parser::factor_tail() {
@@ -208,12 +191,11 @@ OptionalDouble Parser::factor_tail() {
         OptionalInt value1 = factor();
         OptionalDouble value2 = factor_tail();
         OptionalDouble value = value1.data * value2.data;
-        if (opType) { //
-            if (value.isUnknown) {
-                // Unknown
+        if (opType) { // if operation is division
+            if (value.isUnknown) { // cannot assure data
                 return OptionalDouble::GetUnknown();
             }
-            else if (value.data == 0) {
+            else if (value.data == 0) { // zero divisor error
                 logError(ZERO_DIVISER);
                 return OptionalDouble::GetUnknown();
             }
@@ -233,8 +215,6 @@ OptionalDouble Parser::factor_tail() {
 std::string Parser::ident() { // STATEMENT begin identifier - check declarations
     if (!isToken(IDENT)) { throw std::exception(); } //CODE ERROR : >>CHECK CODE<<
     std::string value = getToken();
-    //_symbolTable.find(getToken())->second.isNull = false; //Identifier
-    //_symbolTable.find(getToken())->second.data = 0; //Identifier
     printToken();
     idCountPerStatement += 1;
     moveNextAndCheckValid();
@@ -246,10 +226,8 @@ OptionalInt Parser::ident_val() { // ident value  о
     if (!isToken(IDENT)) { throw std::exception(); } //CODE ERROR : >>CHECK CODE<<
     printToken();
     idCountPerStatement += 1;
-
     auto iter = _symbolTable.find(getToken());
-    
-    if (iter->second.isNull) {
+    if (iter->second.isNull) { //declaration check
         logError(NOT_DECLARED, getToken());
         iter->second.isNull = false; //Identifier
         iter->second.isUnknown = true; //Identifier
@@ -260,10 +238,9 @@ OptionalInt Parser::ident_val() { // ident value  о
     moveNextAndCheckValid();
     return iter->second;
     // value = symbol table[ident]
-    //return value;
+    // return value;
     
-    if (hasError()) {
-        
+    if (hasError()) { // error alreay happen - cannot assure data
         return OptionalInt::GetUnknown();
     }
     
@@ -271,7 +248,6 @@ OptionalInt Parser::ident_val() { // ident value  о
 
 int Parser::add_op() {
     if (!isToken(ADD_OP)) { throw std::exception(); }//CODE ERROR : >>CHECK CODE<<
-    
     printToken();
     opCountPerStatement += 1;
     int value = getToken() == "-"; // return true only if op is -
@@ -284,31 +260,25 @@ int Parser::add_op() {
 
 int Parser::mult_op() {
     if (!isToken(MULT_OP)) { throw std::exception(); } //CODE ERROR : >>CHECK CODE<<
-    
     printToken();
     opCountPerStatement += 1;
     int value = (getToken() == "/");
     moveNextAndCheckValid();
-    
-    if (hasError()) return 0; //Null
-    
+    if (hasError()) return 0;// return null value - no logic for unknown value
     return value;
 }
 
 OptionalInt Parser::const_val() {
     if (!isToken(CONST)) { throw std::exception(); } //CODE ERROR : >>CHECK CODE<<
-    
     int data;
     std::stringstream ss(getToken());
     printToken();
     constCountPerStatement += 1;
     ss >> data;
     moveNextAndCheckValid();
-    
     if (hasError()) { //ERROR -> return Unknown value
         return OptionalInt::GetUnknown();
     }
-    
     return OptionalInt(data);
 }
 
@@ -319,41 +289,15 @@ OptionalInt Parser::const_val() {
 
 //Error Manage Function
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void Parser::printToken() {
+void Parser::printToken() { // print current stack value
     std::cout << getToken();
 }
 
-void Parser::printCountPerStatement() {
+void Parser::printCountPerStatement() { // print count
     std::cout << "ID: " << idCountPerStatement << "; CONST:" << constCountPerStatement << "; OP: " << opCountPerStatement << "\n";
 }
 
-void Parser::printWarningAndErrorList() {
+void Parser::printWarningAndErrorList() { // print Error and Warning
     if (warningList.size() == 0 && errorList.size() == 0) {
         std::cout << "(OK)" << std::endl;
     }
@@ -422,7 +366,7 @@ void Parser::printWarningAndErrorList() {
 }
 
 
-void Parser::resetVariablesForNewStatement() {
+void Parser::resetVariablesForNewStatement() { // initialize count per statement
     idCountPerStatement = 0;
     constCountPerStatement = 0;
     opCountPerStatement = 0;
@@ -431,7 +375,9 @@ void Parser::resetVariablesForNewStatement() {
     errorList.clear();
 }
 
-void Parser::logError(Errors error) { 
+// log Error and Warning
+
+void Parser::logError(Errors error) {
     errorList.push_back(std::make_tuple(error, std::string()));
 }
 
