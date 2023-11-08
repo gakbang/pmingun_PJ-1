@@ -184,7 +184,6 @@ OptionalInt Parser::term_tail() {
     else {
         return OptionalInt(0);
     }
-    
 }
 
 OptionalInt Parser::factor() {
@@ -192,8 +191,7 @@ OptionalInt Parser::factor() {
         return ident_val();
     }
     else if (isToken(CONST)) {
-        OptionalInt v = const_val();
-        return v;
+        return const_val();
     }
     else if (isToken(LEFT_PAREN)) {
         parenCountPerStatement++;
