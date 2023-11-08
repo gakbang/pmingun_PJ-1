@@ -33,10 +33,16 @@ void Parser::statements() {
         // SEMICOLON에 대한 처리
         std::cout << getToken() << endl;
         
-        // ERROR, WARNING, COUNT message
-        printStatementLog();
         // SEMICOLON
         moveNextAndCheckValid();
+        
+        while (isToken(SEMI_COLON)) {
+            logWarning(SEMI_COLON_REPITITION);
+            moveNextAndCheckValid();
+        }
+        
+        // ERROR, WARNING, COUNT message
+        printStatementLog();
         // STATEMENT
         statement();
     }
