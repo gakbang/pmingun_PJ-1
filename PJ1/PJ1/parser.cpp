@@ -15,7 +15,13 @@ void Parser::Parse() { program(); }
 
 // **** TOKEN FUNCTION ****
 // Program
-void Parser::program() { resetVariablesForNewStatement(); statements(); cout << "\n"; SymbolOutput(); return; }
+void Parser::program() {
+    resetVariablesForNewStatement(); 
+    statements();
+    cout << "\n";
+    SymbolOutput();
+    return;
+}
 
 // STATEMENTS
 void Parser::statements() {
