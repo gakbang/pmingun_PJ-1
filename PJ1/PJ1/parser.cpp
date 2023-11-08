@@ -313,7 +313,7 @@ void Parser::printWarningAndErrorList() { // print Error and Warning
                     break;
                     
                 case UNKNOWN_ID:
-                    std::cout << "Invalid Lexem is detected" << std::endl;
+                    std::cout << "Invalid Lexeme is detected" << std::endl;
                     break;
                     
                 case NON_PAIR_LEFT_PAREN:
@@ -329,7 +329,7 @@ void Parser::printWarningAndErrorList() { // print Error and Warning
                     break;
 
                 case EOF_SEMI_COLON:
-                    std::cout << "LAST STATEMENT DO NOT REQUIRE EOF" << std::endl;
+                    std::cout << "LAST STATEMENT DO NOT REQUIRE SEMI COLON" << std::endl;
                     break;
             }
         }
