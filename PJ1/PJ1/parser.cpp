@@ -25,6 +25,9 @@ void Parser::statements() { //STATEMENTS
         std::cout << getToken() << endl; // SEMICOLON
         printStatementLog();// ERROR, WARNING, COUNT message
         moveNextAndCheckValid();        // SEMICOLON
+        while (isToken(SEMI_COLON)) {
+
+        }
         statement();        //     STATEMENT
     }
 
@@ -160,7 +163,7 @@ OptionalInt Parser::factor() {
     }
     else {
         //check error and warnings
-        if (isToken(SEMI_COLON)) { //statement end without argument
+        if (isToken(SEMI_COLON)||isToken(END_OF_FILE)) { //statement end without argument
             logError(ARGUMENT_MISSING);
             return OptionalInt::GetUnknown();
         }
