@@ -1,7 +1,3 @@
-garbage + garbage ;
-
-
-= o*o*oo*o)oo*o))**o) ;
-:32:=ru;
-9:=3;
-a=3
+operand1 = 2;
+operand2 := operand1+1;
+operand2 : operand2 + operand1
