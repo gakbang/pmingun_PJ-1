@@ -95,7 +95,6 @@ public:
 	}
 	
 	//operator overloading
-
 	OptionalInt& operator=(const OptionalInt& o) {
 		isUnknown = o.isUnknown;
 		data = o.data;
