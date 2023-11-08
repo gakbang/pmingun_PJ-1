@@ -329,7 +329,7 @@ void Parser::printWarningAndErrorList() { // print Error and Warning
                     break;
 
                 case EOF_SEMI_COLON:
-                    std::cout << "LAST STATEMENT DO NOT REQUIRE SEMI COLON" << std::endl;
+                    std::cout << "Last statement do not require semi colon" << std::endl;
                     break;
             }
         }
