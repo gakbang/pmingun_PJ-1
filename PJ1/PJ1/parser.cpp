@@ -13,48 +13,58 @@
 
 void Parser::Parse() { program(); }
 
-//TOKEN  function
+// **** TOKEN FUNCTION ****
 
 void Parser::program() { resetVariablesForNewStatement(); statements(); cout << "\n"; SymbolOutput(); return; }
 
-void Parser::statements() { //STATEMENTS
+//STATEMENTS
+void Parser::statements() {
     
-    statement();//     STATEMENT
+    // STATEMENT
+    statement();
         
     while (isToken(SEMI_COLON)) {
-        std::cout << getToken() << endl; // SEMICOLON
-        moveNextAndCheckValid();        // SEMICOLON
-        while (isToken(SEMI_COLON)) {
-            logWarning(SEMI_COLON_REPITITION);
-            moveNextAndCheckValid();
-        }
-        printStatementLog();// ERROR, WARNING, COUNT message
-        statement();        //     STATEMENT
+        // SEMICOLON에 대한 처리
+        std::cout << getToken() << endl;
+        
+        // ERROR, WARNING, COUNT message
+        printStatementLog();
+        // SEMICOLON
+        moveNextAndCheckValid();
+        // STATEMENT
+        statement();
     }
 
-    if (!isToken(END_OF_FILE)) { // check token error
+    // 만약 모든 처리가 완료되었음에도 토큰이 남아있다면
+    // 에러로 기록
+    if (!isToken(END_OF_FILE)) {
         cout << getToken() << endl;
         logError(TOKEN_LEFT);
     }
     
-    
+    // 남은 ERROR, WARNING, COUNT 메시지 출력하며 statement 파싱 종료
     cout << endl;
-
-    printStatementLog();// ERROR, WARNING, COUNT message
+    printStatementLog();
     
     return;
 }
 
-void Parser::statement() { // STATEMENT
+// STATEMENT
+void Parser::statement() {
     
-    std::string id; //identifier
+    //identifier
+    std::string id;
 
     if (isToken(END_OF_FILE)) {
-        logWarning(EOF_SEMI_COLON); // last statement semicolon check
+        logWarning(EOF_SEMI_COLON);
         return;
     }    
-    if (isToken(IDENT)) { id = ident(); }
-    else { //warning error check
+    
+    if (isToken(IDENT)) { 
+        id = ident();
+    }
+    // warning error check
+    else {
         if (isToken(COLON) || isToken(EQUAL)) {
             logError(BEGIN_IDENT_MISSING);  
         }
@@ -63,8 +73,8 @@ void Parser::statement() { // STATEMENT
             logError(BEGIN_IDENT_MISSING);
             moveNextAndCheckValid();
         }
-        
     }
+    
     if (isToken(COLON)) {
         printToken();
         moveNextAndCheckValid();
@@ -286,22 +296,25 @@ OptionalInt Parser::const_val() {
     return OptionalInt(data);
 }
 
-//TOKEN  FUCTION END
+// **** TOKEN FUNCTION END ****
 
 
 
 
-//Error Manage Function
+// Error Manage Function
 
-void Parser::printToken() { // print current stack value
+// print current stack value
+void Parser::printToken() {
     std::cout << getToken();
 }
 
-void Parser::printCountPerStatement() { // print count
+// print count
+void Parser::printCountPerStatement() {
     std::cout << "ID: " << idCountPerStatement << "; CONST:" << constCountPerStatement << "; OP: " << opCountPerStatement << "\n";
 }
 
-void Parser::printWarningAndErrorList() { // print Error and Warning
+// print Error and Warning
+void Parser::printWarningAndErrorList() {
     if (warningList.size() == 0 && errorList.size() == 0) {
         std::cout << "(OK)" << std::endl;
     }
@@ -374,8 +387,8 @@ void Parser::printWarningAndErrorList() { // print Error and Warning
     cout << '\n';
 }
 
-
-void Parser::resetVariablesForNewStatement() { // initialize count per statement
+// initialize count per statement
+void Parser::resetVariablesForNewStatement() {
     idCountPerStatement = 0;
     constCountPerStatement = 0;
     opCountPerStatement = 0;
@@ -385,7 +398,6 @@ void Parser::resetVariablesForNewStatement() { // initialize count per statement
 }
 
 // log Error and Warning
-
 void Parser::logError(Errors error) {
     errorList.push_back(std::make_tuple(error, std::string()));
 }
