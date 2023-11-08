@@ -15,6 +15,7 @@ void Parser::Parse() { program(); }
 
 // **** TOKEN FUNCTION ****
 // Program
+
 void Parser::program() {
     resetVariablesForNewStatement(); 
     statements();
@@ -28,7 +29,7 @@ void Parser::statements() {
     
     // call STATEMENT
     statement();
-        
+
     while (isToken(SEMI_COLON)) {
         // SEMICOLON에 대한 처리
         std::cout << getToken() << endl;
