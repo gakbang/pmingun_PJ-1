@@ -23,11 +23,12 @@ void Parser::statements() { //STATEMENTS
         
     while (isToken(SEMI_COLON)) {
         std::cout << getToken() << endl; // SEMICOLON
-        printStatementLog();// ERROR, WARNING, COUNT message
         moveNextAndCheckValid();        // SEMICOLON
         while (isToken(SEMI_COLON)) {
-
+            logWarning(SEMI_COLON_REPITITION);
+            moveNextAndCheckValid();
         }
+        printStatementLog();// ERROR, WARNING, COUNT message
         statement();        //     STATEMENT
     }
 
@@ -328,8 +329,12 @@ void Parser::printWarningAndErrorList() { // print Error and Warning
                     std::cout << "Can't Find : in statement" << std::endl;
                     break;
 
+                case SEMI_COLON_REPITITION:
+                    std::cout << "Semicolon is repeated." << std::endl;
+                    break;
+
                 case EOF_SEMI_COLON:
-                    std::cout << "LAST STATEMENT DO NOT REQUIRE EOF" << std::endl;
+                    std::cout << "LAST STATEMENT NOT REQUIRE EOF" << std::endl;
                     break;
             }
         }
@@ -359,6 +364,7 @@ void Parser::printWarningAndErrorList() { // print Error and Warning
                 case PAREN_PAIR_MISSING:
                     std::cout << "RIGHT PARENT DOES NOT HAVE PAIR." << std::endl;
                     break;
+                
                 case ARGUMENT_MISSING:
                     std::cout << "ARGUMENT IS MISSING IN OPRATION." << std::endl;
                     break;

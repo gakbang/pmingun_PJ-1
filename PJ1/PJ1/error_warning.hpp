@@ -20,6 +20,7 @@ typedef enum {
     NON_PAIR_LEFT_PAREN, //left parenthesis does not have pair
     EQUAL_MISSING, // = is missing
     COLON_MISSING, // : is missing
+    SEMI_COLON_REPITITION,
     EOF_SEMI_COLON // last statement has semicolon
 } Warnings;
 

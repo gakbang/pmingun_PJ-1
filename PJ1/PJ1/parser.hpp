@@ -142,7 +142,7 @@ private:
 	std::string getToken() { return std::get<1>(_tokenList[_index]); } // get current token value
 	void nextToken() { _index++; return; } // move to next
     void moveNextAndCheckValid() {nextToken(); if(isToken(UNKNOWN)){logWarning(UNKNOWN_ID); nextToken();} } // valid check
-	bool isEmpty() { return std::get<0>(_tokenList[_index]) == END_OF_FILE; } 
+	bool isEmpty() { return (std::get<0>(_tokenList[_index]) == END_OF_FILE)|| (_index >= _tokenList.size()); } 
 	bool isToken(Tokens token) { 
 		return token == std::get<0>(_tokenList[_index]); 
 	}
