@@ -1,11 +1,3 @@
-//
-//
-//  parser.hpp
-//  PJ1
-//
-//  Created by Park Sungmin on 10/30/23.
-//
-
 #ifndef parser_hpp
 #define parser_hpp
 
@@ -23,22 +15,23 @@
 
 #endif /* parser_hpp */
 
+//Optional Data :: Nullable, Unknownable
 
 template<typename T>
 class OptionalData {
 protected:
-	OptionalData() :isNull(true), isUnknown(false), data(0) {}
-	OptionalData(bool isUnknown) :isNull(false), isUnknown(isUnknown), data(0) {}
+	OptionalData() :isNull(true), isUnknown(false), data(0) {} // null data CTOR
+	OptionalData(bool isUnknown) :isNull(false), isUnknown(isUnknown), data(0) {} // Unknown data CTOR
 	OptionalData(T data) :isNull(false), isUnknown(false), data(data) {}
 public:
 	using data_type = T;
-	bool isNull; // 선언 여부 확인하는 변수
-	bool isUnknown; // Unknown Data 확인하는 변수
-	T data;
+	bool isNull; // if not delared, Null
+	bool isUnknown; // if statement cannot assure data, unknown data
+	T data; // data
 
 	bool isValid() { return !(isNull | isUnknown); }
 	
-	std::string GetData() {
+	std::string GetData() { // output data
 		if (isNull) return "NullData";
 		if (isUnknown) return "Unknown";
 		else return to_string(data);
@@ -46,7 +39,7 @@ public:
 };
 
 template <class T1, class T2>
-T1 ConvertType(T2& t) {
+T1 ConvertType(T2& t) { // Convert Function between OptionalInt - OptionalDouble
 	static_assert(std::is_base_of<OptionalData<typename T1::data_type>, T1>::value, "OptionalData");
 	static_assert(std::is_base_of<OptionalData<typename T2::data_type>, T2>::value, "OptionalData");
 	T1 value = T1();
@@ -63,10 +56,11 @@ private:
 	OptionalDouble(bool isUnknown) : OptionalData(isUnknown) {}
 
 public:
-	static OptionalDouble GetUnknown(){ return OptionalDouble(true); }
-	OptionalDouble() :OptionalData() {}
-	OptionalDouble(double data) : OptionalData(data) {}
+	static OptionalDouble GetUnknown(){ return OptionalDouble(true); } // Unknown data
+	OptionalDouble() :OptionalData() {} // Null data
+	OptionalDouble(double data) : OptionalData(data) {} 
 
+	//operator overloading
 
 	OptionalDouble& operator=(const OptionalDouble& o) {
 		isUnknown = o.isUnknown;
@@ -100,6 +94,7 @@ public:
 	OptionalInt(int data) : OptionalData(data) {
 	}
 	
+	//operator overloading
 
 	OptionalInt& operator=(const OptionalInt& o) {
 		isUnknown = o.isUnknown;
@@ -133,34 +128,43 @@ public:
 	}
 };
 
+//Optional Data :: Nullable, Unknownable end
 
+
+//parser
 class Parser {
 private:
-	int _index;
-	std::stack<Tokens> _parsingStack;
+	int _index; // tokenList index
 	std::vector<std::tuple<Tokens, std::string>> _tokenList;
-	std::map<std::string, OptionalInt> _symbolTable;
+	std::map<std::string, OptionalInt> _symbolTable; 
 
-	std::string getToken() { return std::get<1>(_tokenList[_index]); } //TOKEN의 string값 가져오기
-	void nextToken() { _index++; return; }
-    void moveNextAndCheckValid() {nextToken(); if(isToken(UNKNOWN)){logWarning(UNKNOWN_ID); nextToken();} }
-	bool isEmpty() { return std::get<0>(_tokenList[_index]) == END_OF_FILE; }
+
+	std::string getToken() { return std::get<1>(_tokenList[_index]); } // get current token value
+	void nextToken() { _index++; return; } // move to next
+    void moveNextAndCheckValid() {nextToken(); if(isToken(UNKNOWN)){logWarning(UNKNOWN_ID); nextToken();} } // valid check
+	bool isEmpty() { return (std::get<0>(_tokenList[_index]) == END_OF_FILE)|| (_index >= _tokenList.size()); } 
 	bool isToken(Tokens token) { 
 		return token == std::get<0>(_tokenList[_index]); 
 	}
 
 	// Error Handling
-	vector<Warnings> warningList = {};
-	vector<Errors> errorList = {};
+	vector<std::tuple<Warnings,std::string>> warningList = {};
+	vector<std::tuple<Errors, std::string>> errorList = {};
 
 	bool hasError() { return errorList.size() != 0; }
+
+	// id, const, op counter
 
 	int idCountPerStatement = 0;
 	int constCountPerStatement = 0;
 	int opCountPerStatement = 0;
 
+
+	// parenthesis counter
+	 
 	int parenCountPerStatement = 0;
 
+	//Token state function
 
 	void program();
 	void statements();
@@ -187,7 +191,9 @@ private:
 	// Error Handling Function
 	void resetVariablesForNewStatement();
 	void logError(Errors);
+	void logError(Errors, string);
 	void logWarning(Warnings);
+	void logWarning(Warnings, string);
 
 	//Error Manage Function
 	void ManageInvalidInput();
@@ -196,21 +202,10 @@ private:
 	void ManageInvalidInput(Warnings); //Error / Warning Log를 전달 오류 처리
 
 
-
-	void debug() {
-		for (auto i : _tokenList) {
-			std::cout << std::get<0>(i) << std::get<1>(i) << std::endl;
-		}
-	}
-
-	void debug2() { // symbolTable의 변수명, 저장된 데이터값 출력
+	void SymbolOutput() { // symbolTable의 변수명, 저장된 데이터값 출력
 		for (auto i : _symbolTable) {
 			std::cout << i.first << " : " << i.second.GetData() << std::endl;
 		}
-	}
-
-	void checkError(Tokens token) { // 현재 있는 함수 정보 parameter로 전달 - WARNING 처리할 때 좋을 것 같음
-
 	}
 
 
@@ -218,7 +213,6 @@ private:
 public:
 	Parser(std::vector<std::tuple<Tokens, std::string>> tokenList,
 		std::vector<std::string> symbolTable) :_index(0), _tokenList(tokenList) {
-		_parsingStack.push(PROGRAM);
 		for (auto symbol : symbolTable) {
 			_symbolTable.insert(pair<std::string, OptionalInt>(symbol, OptionalInt()));
 			

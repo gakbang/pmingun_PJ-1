@@ -1,10 +1,3 @@
-//
-//  main.cpp
-//  PJ1
-//
-//  Created by Park Sungmin on 10/30/23.
-//
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -34,10 +27,15 @@ int main(int argc, char *argv[]) {
     // Lexical Analyzer를 통해 토큰 분석 진행
     lexicalAnalyzer.analyzeInputFile(inputFile);
     
+   
+
     // Lexical Analyzer의 구문 분석 결과 -토큰 리스트, 심볼 테이블- 를 Parser에게 전달하며
     // Parser 객체를 생성
     Parser parser(lexicalAnalyzer.getAnalyzedResult(), lexicalAnalyzer.getSymbolTable());
+   
+
     
+
     // Parser를 통해 구문 분석을 진행
     parser.Parse();
 
